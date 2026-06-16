@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sauti - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #000000;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #e5e2e1;
+            overflow: hidden;
+        }
+        .tribal-pattern {
+            opacity: 0.07;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l10 10-10 10-10-10zm0 60l-10-10 10-10 10 10zM0 30l10-10 10 10-10 10zm60 0l-10 10-10-10 10-10z' fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .glass-effect {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "background": "#131313",
+                      "surface-container-low": "#1c1b1b",
+                      "on-secondary": "#640d00",
+                      "on-primary-fixed-variant": "#005227",
+                      "on-error-container": "#ffdad6",
+                      "on-error": "#690005",
+                      "on-primary-fixed": "#00210c",
+                      "on-secondary-fixed-variant": "#8d1600",
+                      "on-background": "#e5e2e1",
+                      "on-tertiary": "#3f2e00",
+                      "on-primary-container": "#007137",
+                      "inverse-primary": "#006d35",
+                      "surface-tint": "#00e476",
+                      "inverse-surface": "#e5e2e1",
+                      "primary-fixed": "#61ff97",
+                      "secondary-fixed": "#ffdad3",
+                      "on-surface-variant": "#b9cbb9",
+                      "tertiary-container": "#ffda89",
+                      "primary-fixed-dim": "#00e476",
+                      "surface-bright": "#393939",
+                      "on-surface": "#e5e2e1",
+                      "secondary-fixed-dim": "#ffb4a4",
+                      "surface-container": "#201f1f",
+                      "secondary-container": "#a71c00",
+                      "inverse-on-surface": "#313030",
+                      "tertiary": "#fffaf7",
+                      "error-container": "#93000a",
+                      "tertiary-fixed-dim": "#f7be1d",
+                      "surface-container-high": "#2a2a2a",
+                      "on-tertiary-fixed": "#251a00",
+                      "surface-variant": "#353534",
+                      "on-tertiary-fixed-variant": "#5a4300",
+                      "on-tertiary-container": "#7c5d00",
+                      "surface-container-highest": "#353534",
+                      "secondary": "#ffb4a4",
+                      "error": "#ffb4ab",
+                      "outline": "#849584",
+                      "primary-container": "#00ff85",
+                      "on-secondary-container": "#ffb9aa",
+                      "on-secondary-fixed": "#3e0500",
+                      "surface-dim": "#131313",
+                      "tertiary-fixed": "#ffdf9a",
+                      "surface-container-lowest": "#0e0e0e",
+                      "on-primary": "#003919",
+                      "surface": "#131313",
+                      "primary": "#f0ffee",
+                      "outline-variant": "#3b4b3d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "8px",
+                      "margin-desktop": "48px",
+                      "lg": "40px",
+                      "sm": "12px",
+                      "gutter": "16px",
+                      "xs": "4px",
+                      "margin-mobile": "24px",
+                      "md": "24px",
+                      "xl": "64px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "label-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "500"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background">
+<!-- Top Navigation Placeholder (Supressed based on "Transactional" rule, but logo remains for branding) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-center py-xl">
+<h1 class="font-display-lg text-display-lg text-primary-fixed-dim tracking-tighter">Sauti</h1>
+</header>
+<!-- Main Content Canvas -->
+<main class="relative h-screen w-full flex flex-col justify-end">
+<!-- Background Image Container with Modern Edit -->
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent z-10"></div>
+<img class="w-full h-full object-cover grayscale brightness-[0.4] contrast-[1.2]" data-alt="A high-contrast, professional studio photograph of a traditional Kora and Djembe set against a deep black background. The instruments are treated with a modern edit featuring subtle emerald green rim lighting. The composition is artistic and minimalist, evoking a premium dark-gallery aesthetic with rich textures and deep shadows, emphasizing the cultural heritage of African music." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWrNBDzsGwiW7trD5AM239GOxjzTSFFuKnoWVc_U2hbFdCQ6Ac--2_IbIwQBUjQedtsbIrunIKbqPhTvqmSMF5v0XLjEK9G4JfFUIljT-coAaT_1jHCv7txGN59mY0KClYqVqSsZaVzU80FKUu-2UJygaX1YOe2tiEp8vberHOuKcKaUUGu9io9QrUqixyGYGTkBvni86KDmGQGAmTbj7CfuPlzQ1MZv4masJS-1xNRn_8NI4UVZiCjmxP7eeTJARBQ0dXj8G6_Rgz"/>
+<!-- Tribal Motif Overlay -->
+<div class="absolute inset-0 tribal-pattern z-5"></div>
+</div>
+<!-- Content Section -->
+<section class="relative z-20 px-margin-mobile pb-xl flex flex-col items-center text-center max-w-lg mx-auto">
+<!-- Animated Shader Element (Micro-interaction) -->
+<div class="mb-lg w-24 h-1 bg-primary-fixed-dim/30 rounded-full overflow-hidden">
+<div class="h-full bg-primary-fixed-dim w-1/3 animate-[loading_2s_ease-in-out_infinite]"></div>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mb-base">
+                Votre héritage, votre rythme.
+            </h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-xl leading-relaxed">
+                Découvrez une expérience sonore où la tradition rencontre l'innovation. Plongez dans les profondeurs de l'Amapiano et de l'Afrobeats.
+            </p>
+<!-- Navigation Actions -->
+<div class="w-full flex flex-col gap-gutter mb-xl">
+<button class="bg-primary-fixed-dim text-on-primary-fixed py-md px-xl rounded-full font-label-lg text-label-lg flex items-center justify-center gap-base transition-all duration-300 active:scale-95 hover:opacity-90">
+                    Suivant
+                    <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+<!-- Minimalist Progress Indicators -->
+<div class="flex items-center gap-base mb-margin-mobile">
+<div class="h-[3px] w-12 bg-primary-fixed-dim rounded-full transition-all duration-500"></div>
+<div class="h-[3px] w-4 bg-surface-container-highest rounded-full"></div>
+<div class="h-[3px] w-4 bg-surface-container-highest rounded-full"></div>
+</div>
+</section>
+</main>
+<!-- Glassmorphic Footer Gradient -->
+<div class="fixed bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-10"></div>
+<style>
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Responsive adjustments for desktop */
+        @media (min-width: 768px) {
+            h2 {
+                font-size: 40px !important;
+                line-height: 48px !important;
+            }
+            .px-margin-mobile {
+                padding-left: 48px;
+                padding-right: 48px;
+            }
+        }
+    </style>
+<script>
+        // Micro-interaction for the button
+        const nextBtn = document.querySelector('button');
+        nextBtn.addEventListener('click', () => {
+            // Simulated transition effect
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(() => {
+                // In a real app, this would navigate to step 2
+                document.body.style.opacity = '1';
+            }, 500);
+        });
+
+        // Subtle parallax effect on background image
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 10;
+            const y = (e.clientY / window.innerHeight - 0.5) * 10;
+            const img = document.querySelector('img');
+            img.style.transform = `scale(1.1) translate(${x}px, ${y}px)`;
+            img.style.transition = 'transform 0.2s ease-out';
+        });
+    </script>
+</body></html>

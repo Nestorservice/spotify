@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sauti - Premium African Music</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#ffda89",
+                    "secondary-fixed-dim": "#ffb4a4",
+                    "primary-fixed": "#61ff97",
+                    "primary-fixed-dim": "#00e476",
+                    "tertiary": "#fffaf7",
+                    "on-tertiary-fixed-variant": "#5a4300",
+                    "inverse-surface": "#e5e2e1",
+                    "primary": "#f0ffee",
+                    "secondary-fixed": "#ffdad3",
+                    "surface-container": "#201f1f",
+                    "on-primary-fixed": "#00210c",
+                    "surface-container-lowest": "#0e0e0e",
+                    "tertiary-fixed": "#ffdf9a",
+                    "surface-container-high": "#2a2a2a",
+                    "on-secondary-fixed-variant": "#8d1600",
+                    "background": "#131313",
+                    "on-error-container": "#ffdad6",
+                    "on-primary": "#003919",
+                    "on-surface-variant": "#b9cbb9",
+                    "on-surface": "#e5e2e1",
+                    "surface-container-highest": "#353534",
+                    "on-tertiary": "#3f2e00",
+                    "surface-dim": "#131313",
+                    "inverse-on-surface": "#313030",
+                    "outline": "#849584",
+                    "on-error": "#690005",
+                    "error-container": "#93000a",
+                    "on-background": "#e5e2e1",
+                    "on-secondary-fixed": "#3e0500",
+                    "on-secondary": "#640d00",
+                    "surface-variant": "#353534",
+                    "secondary": "#ffb4a4",
+                    "outline-variant": "#3b4b3d",
+                    "inverse-primary": "#006d35",
+                    "on-primary-container": "#007137",
+                    "secondary-container": "#a71c00",
+                    "surface-bright": "#393939",
+                    "tertiary-fixed-dim": "#f7be1d",
+                    "primary-container": "#00ff85",
+                    "on-tertiary-fixed": "#251a00",
+                    "surface": "#131313",
+                    "error": "#ffb4ab",
+                    "surface-tint": "#00e476",
+                    "on-secondary-container": "#ffb9aa",
+                    "surface-container-low": "#1c1b1b",
+                    "on-primary-fixed-variant": "#005227",
+                    "on-tertiary-container": "#7c5d00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "margin-desktop": "48px",
+                    "base": "8px",
+                    "lg": "40px",
+                    "sm": "12px",
+                    "margin-mobile": "24px",
+                    "xl": "64px",
+                    "md": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "label-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e5e2e1;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .tribal-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.05;
+            background-image: url("https://www.transparenttextures.com/patterns/carbon-fibre.png"); /* Simple pattern fallback for tribal texture feel */
+            background-repeat: repeat;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .custom-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .glass-card {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tribal-motif {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 80px;
+            height: 80px;
+            opacity: 0.07;
+            background-image: radial-gradient(circle at center, #61ff97 1px, transparent 1px);
+            background-size: 10px 10px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="dark selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<div class="tribal-overlay"></div>
+<!-- TopAppBar -->
+<header class="bg-background dark:bg-background flex justify-between items-center px-margin-mobile py-base w-full fixed top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-white/10 hover:opacity-80 transition-opacity cursor-pointer">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A sophisticated portrait of a young African woman with elegant braided hair, captured in a high-fashion style. The lighting is soft and moody, emphasizing her glowing skin against a dark, minimalist background. The aesthetic is premium and artistic, reflecting the ethno-minimalist brand identity of a high-end music platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM4-yMLaTqv9lrCkbyhQk0vOL-q_Kbhkh_fZHeIZoQDUTNqg-ffXeSJgWr797WDIpFhuY-3FvK0IfozpfcEVuDTTIcOv41EfUnmagapH7wHehahlk634KuR2J7hsOXVd84n3LWy6XBuuYrl6dYcPJwvg4ZoCFaq_iErgIALWswQO-c6wLIsssxiDv7QChDFMynCKXUwvZG8ixJGH3ciE_Mmo-jDfcp8gYDT0JS9WpSgni7k3MuLaiGF9kmjk7puy1DdaYgRJ_YimSU"/>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary-fixed-dim tracking-tighter">Sauti</h1>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-100">
+            settings
+        </button>
+</header>
+<main class="relative z-10 pt-24 pb-32">
+<!-- Hero Section / Featured -->
+<section class="px-margin-mobile mb-lg">
+<div class="relative w-full aspect-[4/5] md:aspect-[21/9] rounded-xl overflow-hidden group">
+<img alt="Featured artist" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A cinematic, wide-angle shot of a vibrant African music festival at night. Beams of Emerald Green and Saffron Yellow light cut through the dark sky, illuminating a crowd of people in motion. The atmosphere is energetic and electric, with a focus on the rhythm and cultural depth of the event, rendered in a high-contrast dark gallery style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCG4YoTel4SJVVEUOjEJmaBo859p9hBM3WoUnz3OQwJVyQfVfmjANpnoP5-rt2MS_gQHvTC7W7U6PH2QkolgEShlDovp20yiUzK0k27WQRaQkdbO-EszDOzqrM8IBoZGNBzC6drtBgMSyxryQ3VwPo4Lr8dQbdvKsk9-1vX8fWtiammq9PT02jfrwibZRKSEl9fMXovg_wCtF03sfuydaR-rm7dC-JSm8rdlfjI_U8MDBmME9lZUmqCyJSyAKSxegBxpI6pfjtvtEUe"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-md space-y-2">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-primary-fixed bg-black/40 backdrop-blur-md px-3 py-1 rounded-full">À l'honneur</span>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:text-headline-lg text-white">Burna Boy : L'Odyssée</h2>
+<p class="text-on-surface-variant font-body-md text-body-md max-w-md">Découvrez le nouvel album qui redéfinit l'Afrobeats moderne.</p>
+<button class="mt-4 flex items-center gap-2 bg-primary-fixed text-on-primary-fixed px-6 py-3 rounded-full font-bold hover:opacity-90 transition-all active:scale-95">
+<span class="material-symbols-outlined fill-1" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        ÉCOUTER MAINTENANT
+                    </button>
+</div>
+</div>
+</section>
+<!-- Top Hits du Continent -->
+<section class="mb-lg">
+<div class="flex justify-between items-end px-margin-mobile mb-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Top Hits du Continent</h3>
+<p class="text-on-surface-variant font-label-lg text-label-lg uppercase tracking-wider">Les rythmes qui font vibrer l'Afrique</p>
+</div>
+<button class="text-primary-fixed-dim font-label-lg text-label-lg hover:underline transition-all">VOIR TOUT</button>
+</div>
+<div class="flex gap-gutter px-margin-mobile overflow-x-auto custom-scrollbar snap-x">
+<!-- Card 1 -->
+<div class="flex-none w-48 snap-start group cursor-pointer">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 shadow-xl glass-card">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="An artistic album cover featuring abstract geometric tribal patterns in vibrant Emerald Green and deep black. The design is clean and minimalist, with a central golden icon representing a stylized sun. The mood is premium, rhythmic, and deeply rooted in modern African art aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb0PReseY03xVFuP3s8tk113tO5iE-qCvkc5ZOulHs3ANbkxFrHjc6o7pZ8R_DzgRbUjLGhnl0ySo9YQ-FYII62TgbkDmiN8e4Hkvw2sCdVUo7QiiVLP1fILb98UR9EG3ZsrJn79LPjcGSDg4uouVpIvbm-zVomqI0WrxsxfhZKpEsfzQQ6tt4aAwNNqJSFh4HjpqPgjONMKjl5MkuX4RMtEJ4_NPgp0dQ-0dGDSpn1WxVql0BxAqRkrnBK8wsKfYxd8k-lOEiZSAj"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-black shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="tribal-motif"></div>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Amapiano Kings</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Kabza De Small, DJ Maphorisa</p>
+</div>
+<!-- Card 2 -->
+<div class="flex-none w-48 snap-start group cursor-pointer">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 shadow-xl glass-card">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Minimalist album artwork showing a close-up of a traditional African drum with modern neon light highlights in Saffron Yellow. The background is a deep, solid black gallery space. The image evokes a sense of rhythm, heritage, and high-end technological fusion." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0fcm-yLgT0ThbjYJakF_UQT4xkUZOM0meWUT9c6_6NdRAJSF3fTIhUv3NF5qExLwD0N44y25Ah-UGr3LxrVfndw14tZdRjs_jk37eOdiCYWi35C7QfP3pOgj1MULwgDtiR_4uwTtBzp09dnxgaHMz7jzpuMZWcGu5iHU6eBNt06BQrxWrOZyzojVk81ScmeoYOf783WRRJxorXu_cCflUdpwx9kjn56gzbZuMoSAx8AylJfqR8keHPq7YLca_xciaHzZOdJtRJ3oK"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-black shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="tribal-motif"></div>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Naija Wave</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Wizkid, Tems, Rema</p>
+</div>
+<!-- Card 3 -->
+<div class="flex-none w-48 snap-start group cursor-pointer">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 shadow-xl glass-card">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A premium music card design featuring a stylized silhouette of a dancer against a textured dark background with faint geometric tribal patterns. Subtle green lighting accents the edges of the silhouette. The overall aesthetic is sophisticated, dark, and focused on the artistic movement of African music." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKZR8eAbVovHxvv3_KFYBguyVsInrQG4yMg_1BrivsCCVU2uOZjlFQvSzkg1FNqA-hv-eXkcflrupyWmznD78oyRDuxBsKw3gAJ1rgtkyvtWkRgn93HOzbQOJKKovAmgB4U_5FkTxjPNsxBMKhdRvBOzyhXGO7JzQAqRLTnJaK7yUkZPDOLq5fpGiSSshk4EF8taffR58T26--IKcnXtQRH9fWDdW_mX2__Knl7Rfhik1LqXz6oWWBwKYc3XTG-cyHZnBtB3GlF61x"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-black shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="tribal-motif"></div>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Genge Tone Next</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Sauti Sol, Khaligraph Jones</p>
+</div>
+<!-- Card 4 -->
+<div class="flex-none w-48 snap-start group cursor-pointer">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 shadow-xl glass-card">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Modern abstract digital art for a music album. Waves of light in Emerald Green and soft Saffron move across a pitch-black canvas, forming patterns reminiscent of African textile weaves. The style is high-tech minimalism with a deep respect for cultural heritage." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ1uB5WUyiE9Zwa245ZcwoRNRaZfPygxZm9PhjIQ7KuWZzqO7IZr9_hAvwA7ZlR5a7rVLnfdr9X8endeztYWw4iiEN1oGX0FQf3y_QUfZl2K305EsCLLDEbffX3-HcVlYrTTxa9tZ-tCAvygIYjPwJgezSuVIkE5pRK47LjO8hQBEZ9Yt8VHIIo7i7lB0GGI7_T6xtf3sRS48t0VWbNwhr5J3OzNLbf3TtjMVwLASHjWkP4B9_QqSXFWVHvPIz5x4uyKKOR_cjGfIl"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-black shadow-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="tribal-motif"></div>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Coupé Décalé Gold</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">DJ Arafat, Serge Beynaud</p>
+</div>
+</div>
+</section>
+<!-- Découvertes Locales -->
+<section class="mb-lg">
+<div class="flex justify-between items-end px-margin-mobile mb-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Découvertes Locales</h3>
+<p class="text-on-surface-variant font-label-lg text-label-lg uppercase tracking-wider">Pépites de votre région</p>
+</div>
+</div>
+<div class="flex gap-gutter px-margin-mobile overflow-x-auto custom-scrollbar snap-x">
+<!-- Bento-style Card -->
+<div class="flex-none w-80 snap-start glass-card rounded-xl p-4 flex gap-4 items-center group cursor-pointer active:scale-95 transition-transform">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-none">
+<img class="w-full h-full object-cover" data-alt="A professional studio photo of a music producer's console in a dark, high-end studio. Minimalist lighting highlights the sliders and knobs. The scene is clean, technical, and focused on the craftsmanship of sound production in a premium African music setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3RcYY5idw5rIThMNDjbVKxs8Mxr5efRl9EKV2inzbVgsQ4x0WKuIfxWFTSLI-MATbnMuxoW2e1pm3J8w6Vyr0negViSRsdDCZNffOx4TSsFF75ACFUJx4eprEiVkM1ZrYDCUZH7W4kR-YCtlKruhPd0ddba58wTRXVB2ZF_-xP5r80Zg4qs-9MreCgXFXgZ9ESlbnaawP0dgT7-3pvz2V_sZSSmzwpiZtLHBUG6-i8-t7yYXbR0dfMtL-SOCTOTW88Tbm7ojZikJI"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<span class="text-[10px] text-primary-fixed-dim border border-primary-fixed-dim/30 px-2 py-0.5 rounded font-bold uppercase">NOUVEAU</span>
+<h4 class="font-label-lg text-label-lg text-on-surface mt-1 truncate">Lagos Underground</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">L'avenir de la scène Alté</p>
+</div>
+</div>
+<div class="flex-none w-80 snap-start glass-card rounded-xl p-4 flex gap-4 items-center group cursor-pointer active:scale-95 transition-transform">
+<div class="w-24 h-24 rounded-lg overflow-hidden flex-none">
+<img class="w-full h-full object-cover" data-alt="A minimalist digital portrait of a jazz saxophonist playing under a single sharp spotlight in a dark room. The atmosphere is smoky and intimate, with deep blacks and rich golden highlights. The visual language is that of a premium, artistic jazz gallery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgo9zQ4PFux9TUXJF0DbGrkqWVlgZHGOGIlDqX3CUFzXBOlsZHkDIZlRfxehcy5QpdB-K4VbCQnVGT4EyTiCOXYdGhMkGJtTbSA6AFj4yywDqZdzekcjBNbmTyiEvewXdxwxIDC0W13FZmaDJlxwX_dvRfzLRRLMU5I6DBPNKnvr26vGtA2cHtlzvPtUKToX2NoqjjqCO_Bdn5SWQSp_sXWdwK-yZ0aoEw9kiMEgvVsdxj34XsHhgd3qCAe6g__debQPGCaam_sl4a"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<span class="text-[10px] text-secondary-fixed-dim border border-secondary-fixed-dim/30 px-2 py-0.5 rounded font-bold uppercase">CURATED</span>
+<h4 class="font-label-lg text-label-lg text-on-surface mt-1 truncate">Ethio-Jazz Remix</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Fusion moderne d'Addis-Abeba</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Vos Mix -->
+<section class="mb-lg">
+<div class="px-margin-mobile mb-md">
+<h3 class="font-headline-md text-headline-md text-on-surface">Vos Mix</h3>
+</div>
+<div class="flex gap-gutter px-margin-mobile overflow-x-auto custom-scrollbar snap-x">
+<!-- Circular/Custom Shape Card for Mixes -->
+<div class="flex-none w-40 snap-start text-center group cursor-pointer">
+<div class="relative aspect-square rounded-full overflow-hidden mb-3 border-2 border-primary-fixed/20 p-1 group-hover:border-primary-fixed transition-colors">
+<img class="w-full h-full object-cover rounded-full" data-alt="A circular abstract graphic for a personalized music mix. The image features fluid, swirling colors of deep purple, emerald green, and black, suggesting a blend of different musical moods and genres. The design is sleek, modern, and high-end." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYOVDbFkuTUO0SLazCYzlxmVmRh9VbEt_ai3Vh8kg7BDII8zX9V2cyd5BWr3NhvWYFGnlSo_VOWeOHwZx57Xs4rD6fzwi1V3t2U0Po8gLmGsHVdB2YtZK1vdpgJwE2C1I9W_mpa-aFfvECZ89OfJ6qZ8A3G3zdvOz0qjKflfEeiT-kUiQrOMTR1p3IfStKoiHRiMQabrpsGUYNu3voN4VUkFJcl3LpDqimu27PbipWNt_laJYreyOtDxH01fPXjNY5sB0FspEghGX5"/>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface">Mix Découverte</h4>
+</div>
+<div class="flex-none w-40 snap-start text-center group cursor-pointer">
+<div class="relative aspect-square rounded-full overflow-hidden mb-3 border-2 border-white/5 p-1 group-hover:border-primary-fixed transition-colors">
+<img class="w-full h-full object-cover rounded-full" data-alt="A premium circular album cover showing a close-up of high-quality headphones resting on a dark wood surface. The lighting is low-key with subtle green glows. The image communicates a personal, high-fidelity listening experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlhvYlB7e47WfWQmuoukawtiKEeMMjge1FSrUtfY7o8hp2PBJoqY9mLmH28sivMRFMNLLJRuhw8b0iVrgYImxLr5UVDMFrvuxqiPRLKFhOUakHHR_3BUPF4mQ-cgi2nDxXfn6-aSEAX0fpI-x79QBmwJvopwa3GP1xxGfYhZ9oD3tHDwQOu1xa4T1ceHARSpB6sdBhTQPMHqE7Cz4CG8nEA7WQ0-LYTw1t6pqAWv8LeBzwEvON65_F2k9t5lvtiH06CSBALVvZXhwX"/>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface">Mix Focus</h4>
+</div>
+<div class="flex-none w-40 snap-start text-center group cursor-pointer">
+<div class="relative aspect-square rounded-full overflow-hidden mb-3 border-2 border-white/5 p-1 group-hover:border-primary-fixed transition-colors">
+<img class="w-full h-full object-cover rounded-full" data-alt="An artistic circular graphic representing high-energy music. Explosions of orange and saffron yellow light against a black background create a sense of movement and rhythm. The design is vibrant yet maintains a sophisticated, minimalist edge." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnDXvbn5oZIw4JXJY8S7Fhgs0r_u9H9eNlOp9oaD9YEUYU_SPZ4dcNCYrXskAx9_6aTgTrSXyXIz4SyxeTUNqdOCsGG5lOzSkQj6S9Nj7OW3K5jhisPspKzzmOZfi3ezZWJGO6hR2URDU_773pCz_CeYhMv2CdSF4_ARylMERR0NdsXPanJKMGJGQxk8T_CsxzL74W-mbXkoxLgwWbl3zCkug-V0VenB_rDBkGorST_Cyw7_uWeTAhiZDis7eOhmqqC5OZeSA4JIV8"/>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface">Mix Énergie</h4>
+</div>
+<div class="flex-none w-40 snap-start text-center group cursor-pointer">
+<div class="relative aspect-square rounded-full overflow-hidden mb-3 border-2 border-white/5 p-1 group-hover:border-primary-fixed transition-colors">
+<img class="w-full h-full object-cover rounded-full" data-alt="A circular digital artwork featuring a field of glowing dots that form a stylized map of Africa. The dots are Emerald Green against a pitch-black background, symbolizing the interconnectedness of African music. The aesthetic is clean, technical, and premium." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwnBTNgdsV6lPgbWxQ5GtEy-skn3yMSvWAC7L5CUxx5gqmtIhZ2ax-zwZ7cDj9nBCzxwHKQRIjvKYjFeskXO_uDetGh6lep61Gphq8vNGJvetz0yoJf6NgaV67xkbhL9pC-MRfkgvEmvixaVBOb7XBBgQ3duuGLwYuCHGpnAWpj_j7frxGxizNipq77MUN4CLHjM7Qu9RHjFFh3lNCcKCFFKPqeJsbA3rjfqyrJQ-IvyOXg2JvqmVwFdN3uOaCf38gIAl0sUuJ0cy6"/>
+</div>
+<h4 class="font-label-lg text-label-lg text-on-surface">Mix Voyage</h4>
+</div>
+</div>
+</section>
+</main>
+<!-- Now Playing Mini Bar (Glassmorphism) -->
+<div class="fixed bottom-[88px] left-margin-mobile right-margin-mobile z-40">
+<div class="glass-card rounded-xl p-3 flex items-center justify-between shadow-2xl border border-white/10">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg overflow-hidden">
+<img alt="Current Track" class="w-full h-full object-cover" data-alt="A small, high-quality album art thumbnail featuring geometric green patterns on a black background. The image is clear and professional, representing the current track in a music player interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmjPpRXIoq3Qy5PFqoiP236pNkb_010AqU20DO1WK9rZUEz2l9QyfU27P-K1TQoJgE4TMhzenpc47usFEk-TVhClDm_crDCC6RLhIfniWqbUUHbm1Afi95v6MEPjzmrYps3gcHF0lLOGEUMmD5ov-jnTAD3CyBUd-ON-KmKo3t_wfJxiRcFlm0XJUIfXr7ltGtk_6FdiezYe5yJRAuf1-pQSo6hEDTO7fa4r9yOdb8kLmUJB99S3j7ViaEndiNTPkRG0PsvyMdm2sw"/>
+</div>
+<div>
+<h5 class="font-label-lg text-label-lg text-white">City Boys</h5>
+<p class="font-label-sm text-label-sm text-primary-fixed-dim">Burna Boy</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-white">favorite</button>
+<button class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+</div>
+<!-- Progress line -->
+<div class="absolute bottom-0 left-0 h-0.5 bg-primary-fixed w-[65%] rounded-full"></div>
+<div class="absolute bottom-0 left-0 h-0.5 bg-white/10 w-full rounded-full -z-10"></div>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container/80 dark:bg-surface-container/80 backdrop-blur-xl border-t border-white/5 rounded-t-xl shadow-xl">
+<a class="flex flex-col items-center justify-center text-primary-fixed dark:text-primary-fixed-dim font-bold hover:text-tertiary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">library_music</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Party</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for horizontal scroll fading
+        const scrolls = document.querySelectorAll('.custom-scrollbar');
+        scrolls.forEach(scroll => {
+            scroll.addEventListener('scroll', () => {
+                // Potential implementation for dynamic fade edges
+            });
+        });
+
+        // Simple active state simulation
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                document.querySelectorAll('nav a').forEach(l => {
+                    l.classList.remove('text-primary-fixed', 'dark:text-primary-fixed-dim', 'font-bold');
+                    l.classList.add('text-on-surface-variant', 'dark:text-on-surface-variant');
+                });
+                link.classList.add('text-primary-fixed', 'dark:text-primary-fixed-dim', 'font-bold');
+                link.classList.remove('text-on-surface-variant', 'dark:text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sauti Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        body {
+            background-color: #000000;
+            color: #e5e2e1;
+            -webkit-font-smoothing: antialiased;
+        }
+        .tribal-texture {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 10h10l-8 7 3 10-10-6-10 6 3-10-8-7h10z' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/svg%3E");
+        }
+        .glass-player {
+            backdrop-filter: blur(20px);
+            background: rgba(18, 18, 18, 0.8);
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#ffda89",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "primary-fixed": "#61ff97",
+                        "primary-fixed-dim": "#00e476",
+                        "tertiary": "#fffaf7",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "inverse-surface": "#e5e2e1",
+                        "primary": "#f0ffee",
+                        "secondary-fixed": "#ffdad3",
+                        "surface-container": "#201f1f",
+                        "on-primary-fixed": "#00210c",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-fixed": "#ffdf9a",
+                        "surface-container-high": "#2a2a2a",
+                        "on-secondary-fixed-variant": "#8d1600",
+                        "background": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "on-primary": "#003919",
+                        "on-surface-variant": "#b9cbb9",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary": "#3f2e00",
+                        "surface-dim": "#131313",
+                        "inverse-on-surface": "#313030",
+                        "outline": "#849584",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "on-background": "#e5e2e1",
+                        "on-secondary-fixed": "#3e0500",
+                        "on-secondary": "#640d00",
+                        "surface-variant": "#353534",
+                        "secondary": "#ffb4a4",
+                        "outline-variant": "#3b4b3d",
+                        "inverse-primary": "#006d35",
+                        "on-primary-container": "#007137",
+                        "secondary-container": "#a71c00",
+                        "surface-bright": "#393939",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "primary-container": "#00ff85",
+                        "on-tertiary-fixed": "#251a00",
+                        "surface": "#131313",
+                        "error": "#ffb4ab",
+                        "surface-tint": "#00e476",
+                        "on-secondary-container": "#ffb9aa",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed-variant": "#005227",
+                        "on-tertiary-container": "#7c5d00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "margin-desktop": "48px",
+                        "base": "8px",
+                        "lg": "40px",
+                        "sm": "12px",
+                        "margin-mobile": "24px",
+                        "xl": "64px",
+                        "md": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-margin-mobile py-base w-full fixed top-0 z-50 bg-background">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-white/5">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A professional close-up portrait of a stylish woman with deep skin tones and intricate braided hair, set against a dark, minimalist charcoal background. The lighting is soft and cinematic, highlighting the rich textures and reflecting the premium ethno-minimalist aesthetic of the app. The mood is sophisticated and focused." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBfsZ7sCvkj6gS0HG7QLqdMGHl2hYNtey54jmBBQTUsyt0K56CKCDg870fNtn_gJ170PnGzRmmHGKXK8aQ-Ghrw6yQbqqCy4170z2vMaehiQz4TD23R49HSiTQmq9q_MrTnRE6jD40EQlMPUSWLQ7XmNdnUnoQlfVP0d2tJM02nmXreXmaxEUuzkrG8oAQ15lQ1zGHz2jkWWkLCD4-zUF3nVDjt9h13r3lXyVLyfvE_4kxKq9s0nAVZyNH9JHba5CTdfFIXmQ1WKN4"/>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary-fixed-dim tracking-tighter">Sauti</h1>
+</div>
+<button class="hover:opacity-80 transition-opacity active:scale-95 duration-100 transition-transform">
+<span class="material-symbols-outlined text-primary-fixed">settings</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-32 px-margin-mobile min-h-screen tribal-texture">
+<!-- Filter Pill Tabs -->
+<div class="flex gap-3 overflow-x-auto pb-6 scrollbar-hide">
+<button class="px-5 py-2 rounded-full border-1.5 border-primary-fixed text-primary-fixed font-label-lg text-label-lg whitespace-nowrap bg-primary-fixed/10 transition-all">
+                Playlists
+            </button>
+<button class="px-5 py-2 rounded-full border-1.5 border-outline/30 text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap hover:border-outline transition-all">
+                Albums
+            </button>
+<button class="px-5 py-2 rounded-full border-1.5 border-outline/30 text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap hover:border-outline transition-all">
+                Artists
+            </button>
+<button class="px-5 py-2 rounded-full border-1.5 border-outline/30 text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap hover:border-outline transition-all">
+                Downloads
+            </button>
+</div>
+<!-- Library Header -->
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background">Your Library</h2>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">sort</span>
+<span class="font-label-lg text-label-lg">Recent</span>
+</button>
+</div>
+<!-- Library Grid / List -->
+<div class="space-y-gutter">
+<!-- Library Item: Liked Songs -->
+<div class="flex items-center gap-4 p-2 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-container to-secondary-container flex items-center justify-center relative overflow-hidden">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1; font-size: 32px;">favorite</span>
+<div class="absolute bottom-1 right-1 opacity-10 tribal-texture w-8 h-8"></div>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-body-lg text-on-surface">Liked Songs</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Playlist • 428 songs</p>
+</div>
+</div>
+<!-- Library Item: Amapiano Rituals -->
+<div class="flex items-center gap-4 p-2 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-white/5 relative">
+<img alt="Amapiano Rituals" class="w-full h-full object-cover" data-alt="A vibrant, high-contrast album cover art featuring abstract rhythmic patterns in neon emerald and saffron yellow on a pitch-black background. The design evokes the energy of Amapiano music with sharp geometric lines and a sense of motion. The visual style is premium and minimalist, following a dark-gallery aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPpRB_9lKZ_BiZHRVOnpiAK_2q3TkbY1v2dk5DID7QN2kolkv7_8lsyDS6x8D5LyCAu2tSdMj_XBiMYhJ_Wnmp_pYQibhfR8iIUAb70FUyWLcjKfXWbe0AIplZtkhvxdDKjgsr-Zr3BhZ4WPkrZgI38duTr7Ff2Yu3-6hz-2H_oHaN7P3mF21jV2ItL2-rI8i1I5blc2nY2U2G5H0Fos4KBpjlRE0tJmgj7TVwcStevOfsnEzdR1RNkk0bPujvtEhosbHl2OhvWFji"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-body-lg text-on-surface">Amapiano Rituals</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Playlist • Sauti Curated</p>
+</div>
+</div>
+<!-- Library Item: African Giant -->
+<div class="flex items-center gap-4 p-2 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-white/5">
+<img alt="African Giant" class="w-full h-full object-cover" data-alt="Modern minimalist album photography of a sculpture influenced by West African traditions, set in a dramatic high-contrast studio setting with deep shadows and warm amber lighting. The texture of the bronze and the dark charcoal background create a tactile, luxury feel consistent with ethno-minimalist design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC43K2sOnFgHhf9nWuKnEFQmI9bC-ctywYurX_uaWDS04JQRbTYZBvt1xW_bMM0n6CwDv3tUOBzzdeCiXM65TP4cXoz7GKDLXCA8CNIZY3mnCehb-a6bmhPNK8pT7yVLYhNUA7ZeaM-qvGU4YTH0d0DwJgFnCLdYd4XMdxdD5u2_HDLhiGIrz1j_rRLXXqH_3a9a6QUDdc66rhTafIVLrMR6ffJRLKlFU2H3tOLXGCz7LshZoZU08g33MrRDw74wzVQ9LAJmyzHHNHS"/>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-body-lg text-on-surface">African Giant</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Album • Burna Boy</p>
+</div>
+<span class="material-symbols-outlined text-primary-fixed" style="font-variation-settings: 'FILL' 1; font-size: 16px;">download_done</span>
+</div>
+<!-- Library Item: Afro-House Essentials -->
+<div class="flex items-center gap-4 p-2 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-white/5 relative">
+<img alt="Afro-House Essentials" class="w-full h-full object-cover" data-alt="Conceptual digital artwork representing sound waves as golden tribal geometric patterns flowing through a dark void. The lighting is focused on the intricate metallic textures, creating a sense of deep culture merged with futuristic technology. The color palette is restricted to blacks, golds, and subtle emerald hints." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcIiH22NSjb_Cuk9oRb8aR67svueOHbctJuVzd-4U4NwslfKeXrzaBQWGh2zHTMA7LjwfmpMJax1WepibFNYqsJd1P3QxUVBtNoymFHH4EepoRnFazVWv0nYOPvWcw6lAtbbYgdKxy0CDkwviEhf7Wh6PeOgb3ijBbF5I_MBsyc9egSY_cWDuhSC0Ev-NFA2rL6RwVHe_nYNUQq8KDQ7ZbP5yiJ02TrQul93b5o2gpugcQbabh53Wb1FzaDwcE3X0rvPKMvWm7AA1G"/>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-body-lg text-on-surface">Afro-House Essentials</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Playlist • 120 songs</p>
+</div>
+</div>
+<!-- Library Item: Wizkid -->
+<div class="flex items-center gap-4 p-2 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-full overflow-hidden border border-white/5">
+<img alt="Wizkid" class="w-full h-full object-cover" data-alt="A minimalist artist portrait focusing on a silhouette against a dimly lit, textured earth-tone wall. The aesthetic is understated and cool, emphasizing presence over detail. The lighting creates a soft halo effect, fitting the sophisticated dark-themed UI of the music application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjaFTqWxgAUcdJR1VzBwlKabuQeWN8KyVvDJlN59tf82OeUP8iYNtZtHMOr0ldf9dROlIvEzG6C0dMCSa7Aj-K1if21WviFDXbrXQOmxKjII5o8HhXlpyFEZcfKd-0egK2F3DeGgs-2NwjkFs4ejp4gQDml6B0Ia73MfA4biYlgKiUbwX-SyuaPFS5CEG6DxQtueMWNi20Uib-k7cV16DRyYY_vN0SQSEpr79JUxYJ0EHVj9dEC1PrnCD3iZ1g_jVOnvt0yJ8reIgo"/>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-body-lg text-on-surface">Wizkid</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Artist</p>
+</div>
+</div>
+<!-- Library Item: Tems -->
+<div class="flex items-center gap-4 p-2 rounded-xl hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-full overflow-hidden border border-white/5">
+<img alt="Tems" class="w-full h-full object-cover" data-alt="High-fashion photography of a female musician with an elegant, focused expression. The shot is tightly cropped, emphasizing a minimalist and premium vibe with low-key lighting that blends the subject into a deep charcoal background. Accents of soft green light highlight the contours of the face." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbdeF2kdZoMc9OFcsbTvGexqBi62cBok7krCt1GUWTyBhudavBOa5Yu9w5FNFo3x0-SPxyLSwUCkJl7R-2SgB1wHgwHmc8-pMeSTpJ4s_NfMzjDMcK0SdQqN4VRas07sKAXeOfL_-DIJ_dqOkAdyY9Plk66ZlxEOUXiZKDqH5VCp1RiDZtsLldmr6M_oXZILfFMN3g5-UD0g37ypH7nXkf1NTl6_ElmHoEgEQ22ycKjoX_c0FSC_14TGl5jlpt9FIAbmJ2GTv6Shys"/>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-body-lg text-on-surface">Tems</h3>
+<p class="font-body-md text-label-sm text-on-surface-variant uppercase tracking-widest mt-1">Artist</p>
+</div>
+<div class="w-2 h-2 rounded-full bg-primary-fixed shadow-[0_0_8px_rgba(97,255,151,0.6)]"></div>
+</div>
+</div>
+<!-- FAB for New Playlist (Contextual) -->
+<button class="fixed bottom-28 right-margin-mobile w-14 h-14 bg-tertiary-fixed-dim text-on-tertiary-fixed rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all duration-200 z-40">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</main>
+<!-- Bottom Now Playing Bar (Glass) -->
+<div class="fixed bottom-[84px] left-4 right-4 h-16 glass-player rounded-xl border border-white/5 flex items-center px-4 gap-3 z-50 shadow-2xl">
+<div class="w-10 h-10 rounded bg-surface-container-highest overflow-hidden">
+<img alt="Now Playing" class="w-full h-full object-cover" data-alt="Small thumbnail of an album cover featuring abstract geometric shapes in vibrant emerald green and dark obsidian, representing contemporary African music." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPuUFdHilwiXsQ9G9kP7D4amgPkk5rHihpsXR___-WV_C9t0cZuxNCm39M_Dj9_ZxFyhw0mojxzS-f8G3kl3-vGEvBSSO72OHhAPx5q9YLgOFDCjnugkw_BMPNwyCs7ad5xX_M63SIge-SWzN9fURJK6CDu93D-q7ieOhC6IH0nMdC-wnNjotFZk326K8y8Wed1sI0VIUE6iSh2e3QO3BvB05jODpAP16O35uSHNw0DLQO4scgeMJxZW9ATGDJxI3TFb9y5A-ZAaaD"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="font-label-lg text-label-lg text-on-surface truncate">High Fashion</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate uppercase tracking-widest">Amapiano Rituals</p>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">devices</span>
+<span class="material-symbols-outlined text-primary-fixed" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+<!-- Progress Bar Mockup -->
+<div class="absolute bottom-0 left-4 right-4 h-[2px] bg-white/10 overflow-hidden rounded-full">
+<div class="h-full bg-primary-fixed w-1/3 shadow-[0_0_8px_rgba(97,255,151,0.5)]"></div>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container/80 backdrop-blur-xl border-t border-white/5 rounded-t-xl shadow-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary-fixed dark:text-primary-fixed-dim font-bold active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">library_music</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Party</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for filter chips
+        const chips = document.querySelectorAll('.px-5.py-2.rounded-full');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => {
+                    c.classList.remove('border-primary-fixed', 'text-primary-fixed', 'bg-primary-fixed/10');
+                    c.classList.add('border-outline/30', 'text-on-surface-variant');
+                });
+                chip.classList.remove('border-outline/30', 'text-on-surface-variant');
+                chip.classList.add('border-primary-fixed', 'text-primary-fixed', 'bg-primary-fixed/10');
+            });
+        });
+    </script>
+</body></html>

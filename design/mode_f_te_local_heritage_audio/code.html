@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sauti - Local Party Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #000000;
+            color: #e5e2e1;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .tribal-texture {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l10 10-10 10-10-10zm0 60l10-10-10-10-10 10zM0 30l10-10 10 10-10 10zm60 0l-10-10-10 10 10 10z' fill='%23ffffff' fill-opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        .radar-wave {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(97, 255, 151, 0.3);
+            border-radius: 50%;
+            animation: wave 4s cubic-bezier(0.36, 0.11, 0.89, 0.32) infinite;
+        }
+
+        @keyframes wave {
+            0% { width: 0; height: 0; opacity: 1; }
+            100% { width: 400px; height: 400px; opacity: 0; }
+        }
+
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(18, 18, 18, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .active-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #61ff97;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #61ff97;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-background fixed top-0 z-50 flex justify-between items-center px-margin-mobile py-base w-full">
+<div class="flex items-center gap-3">
+<div class="flex items-center justify-center bg-surface-container-high rounded-full p-2">
+<span class="material-symbols-outlined text-primary-fixed" style="font-variation-settings: 'wght' 500">cell_tower</span>
+</div>
+<h1 class="font-display-lg text-headline-lg-mobile text-primary-fixed-dim tracking-tighter">Session Locale Active</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity scale-95 duration-100 transition-transform cursor-pointer">settings</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A high-quality studio portrait of a young African creative professional with short hair, looking confidently at the camera. The lighting is warm and dramatic, highlighting facial features against a deep, charcoal-grey background, maintaining a premium and artistic aesthetic consistent with a high-end music platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEuva4eXAgeYCfPJjB34QCAHUm4tAxWww2F_uM9EW1wey0ZUv2UhXVPhIReqIvsg9RSsXotti94IyuYIygoRS6ar9CikUxCEx0BJe2LPc9yQEsCEXOfhtZWi-jGB6ZS2mRie6s6q_Mzg8sH6UHDZ8M3en-nE8Fb7Gcx3vqXsp4MFCfPyx1ZUketsm1KFCTeMesrVF3XxRr7gAQN9Xky6Rrqq-Aofg85rA01rAGYqIm1xTCQubpae_HAvuJgYfiD8pOTv9-ST6Q0vs8"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-margin-mobile">
+<!-- Radar Animation Section -->
+<section class="relative h-64 w-full flex items-center justify-center overflow-hidden rounded-xl bg-surface-container-lowest mb-lg tribal-texture">
+<div class="radar-wave" style="animation-delay: 0s"></div>
+<div class="radar-wave" style="animation-delay: 1s"></div>
+<div class="radar-wave" style="animation-delay: 2s"></div>
+<div class="radar-wave" style="animation-delay: 3s"></div>
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-20 h-20 bg-primary-fixed/20 rounded-full flex items-center justify-center border border-primary-fixed/40">
+<span class="material-symbols-outlined text-primary-fixed text-4xl" style="font-variation-settings: 'FILL' 1">hub</span>
+</div>
+<p class="mt-4 font-label-lg text-label-lg text-primary-fixed uppercase tracking-widest">Scanning for Peers</p>
+</div>
+</section>
+<!-- Participants List -->
+<section class="mb-lg">
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-headline-md text-headline-md">Nearby Listening</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">5 Connected</span>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+<!-- Participant 1 -->
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="relative p-1 rounded-full border-2 border-primary-fixed">
+<div class="w-14 h-14 rounded-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A close-up portrait of a vibrant young woman with braided hair, illuminated by neon emerald and saffron light. She is wearing stylish headphones, and the background is a deep, textured black, evoking the energy of a late-night Afro-electronic music event." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-paOgR_mLvdMuwr87T_mCDeAW-3TysfPA0op-kjEUNGbn0ryGVpHQdy-TMkkLj-1GrbGKKZ2pu4pHWjdd0j_MI07ZCicyJRGlTG6cZivekfP-XqmXVzoZtlMM6pUE22SwoYroc6Sp5ti6yeBI78suqf6owmiapicTTWZz6Z8keX7DOhYxhZrJQedbtw5FGx-uX8WPKTPGT9VsVqn8Odljo-lB_lJ1ofmEWpDWPdGn7pW0MkbFxqIj0sr6vnbU3JxIlQ0y1V7g1qkP"/>
+</div>
+<div class="absolute bottom-0 right-0 active-dot border-2 border-background"></div>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface truncate w-full text-center">Amara</span>
+</div>
+<!-- Participant 2 -->
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 rounded-full overflow-hidden border border-outline-variant opacity-80">
+<img class="w-full h-full object-cover" data-alt="A focused portrait of a man with minimalist style, wearing a dark turtleneck. The lighting is soft and directional, creating a sophisticated silhouette against a dark gallery-like backdrop, reflecting the premium ethno-minimalist brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj1x7fSWGin9oFjm-tbGfTVQZSiRAqYBt5HjOGsGyDoPJa4XByQK_x6rTTmcvt0fOlwS63_BpLSJNq3oVmfudnYY9icug8SPM-fVMzrJz7N45fa3ESFBP4l0Yr5ygK9puyvg48xRTdNNtmO4OxYqujUrpx5LEYawl-bNWMWWyHrfPoyA7jO8htR3jEqz8BXyvSMM1O9WzX1gsvBU5vrujSwK3j7Kgef00ALgd4TaEe_rigbdEVI8n5ILuQS2usl8fMSBveoxQBV1t9"/>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant truncate w-full text-center">Kofi</span>
+</div>
+<!-- Participant 3 -->
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 rounded-full overflow-hidden border border-outline-variant opacity-80">
+<img class="w-full h-full object-cover" data-alt="A professional woman with a warm expression, photographed in a high-contrast black and white style that emphasizes texture and depth. The setting is minimal and clean, adhering to the dark-mode aesthetic of the platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxTPPZlzrjsMwmX3T_6S4FH2K1_qwotAuoxMADNpVCofbsU9AkvVkDYTmHLCwFKM29bFFLP2Fwaqn9plkWMMx3qbwW7UPoY2tDDU5x5OaPA2XSHjzTeIjabx0yFgVDJn-Yt-rwWFS_v_zzD8qOIZIgEhX_2M_BdiEzh1245W26EL0p4oD7AxijsaGEV-AtxrusC6aj2mvNCOkfEEMBCoKv3aKye2hB6-kYEG0TwqyXftiQlYK8ibePcSovXfh8_Vkzyk1Ye0TxAp4r"/>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant truncate w-full text-center">Zanele</span>
+</div>
+<!-- Participant 4 -->
+<div class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 rounded-full overflow-hidden border border-outline-variant opacity-80">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young man with a creative, artistic look, featuring subtle tribal face markings in a faint white paint. The background is a solid deep charcoal with a very soft ambient light from above." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9h6k1ylkNRKVSnswtS77hpUJLjc315E3MUiIBnL6QVSQir-ccpcceqo97vtLtnGremSnlo4e6X14Iv-sLil7q_mana1kQYdEcfCmlirRoP8xbJfnK-xdefpE9pEi3xiwPV-vKyJfAQeaGpQvi61Sbq-j_80_nNyoSHxsHfGET6F1JAurlJdxzGkZOgCLNiBvd8NBmfa2nHWH2D6F3HRyBBKcpeldOwOfIAixYY03SLzWGaADn05fTYZStf6cMW53HmILzqVTq4zk2"/>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant truncate w-full text-center">Jabari</span>
+</div>
+<!-- Add Peer Button -->
+<button class="flex flex-col items-center gap-2 min-w-[72px]">
+<div class="w-14 h-14 rounded-full border-dashed border-2 border-outline-variant flex items-center justify-center text-on-surface-variant hover:border-primary-fixed hover:text-primary-fixed transition-colors">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Invite</span>
+</button>
+</div>
+</section>
+<!-- Shared Queue Section -->
+<section class="mb-xl">
+<h2 class="font-headline-md text-headline-md mb-md">Shared Queue</h2>
+<div class="space-y-gutter">
+<!-- Track 1 (Currently Playing) -->
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4 relative overflow-hidden">
+<div class="absolute inset-0 tribal-texture opacity-5 pointer-events-none"></div>
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A high-contrast album cover art for an Amapiano track, featuring bold geometric tribal patterns in vibrant emerald green and saffron yellow against an absolute black background. The design is modern, sharp, and reflects a rhythmic, high-energy sonic journey." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZl6tR1L5AHtSqH3ReIfSikWmS1iIEwWH5IZUIZC8O76bqMctYRlctUPSrWG04PZLwz79NWvnCMAfHsrlZNRLZoEryytrs-ExN8uAmhENBCxD-g6duDS_sgFOGAjleTswTZQfxFs7CqVvR0ddN5g0QQ-kUMgqAXFlkcIKnHa84FscN6LZC0sQ6IekO8DMaGTkCNOVUgSdV_DZPstRdv2Z5gGFBmpFMMiFZuI_i5xha3qoQUnuS7O_idv8KPQ4TCU1ZYkp9rzP56wyi"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-label-lg text-label-lg text-primary-fixed-dim">Logdrum Ritual</h3>
+<p class="font-label-sm text-[12px] text-on-surface-variant">Musa Keys • 03:42</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="w-6 h-6 rounded-full overflow-hidden border border-primary-fixed">
+<img class="w-full h-full object-cover" data-alt="Small round user avatar of Amara." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAi7RAFxIqN4CKmGDSdBz51LDFSLdbJy-8uYayi8UZtke8eIBylX3Gak5_aYkwZccF7S0q3epC058dne8X221BRYZ1IsSXKd6B3vOM7PTEF6oKjsx9F5Edu07qfO3aMw7HAHGJo2QoqlAv0EkyxkNug83sTRK99r2A2E7zH_Z3-OdqbhA0d_3KuUdpwtdYMx__aAPUVr790p4G3GrkkKcfaFGac1jSt2yfaMgfwu_YE2xnZn55yYxl8oC0vDchTvpdsMJVCTdD8huZw"/>
+</div>
+<span class="font-label-sm text-[10px] text-primary-fixed">Host</span>
+</div>
+<!-- Playback Waveform Mini -->
+<div class="absolute bottom-0 left-0 w-full h-1 bg-surface-container">
+<div class="h-full bg-primary-fixed-dim" style="width: 45%"></div>
+</div>
+</div>
+<!-- Track 2 -->
+<div class="bg-surface-container-low p-4 rounded-xl flex items-center gap-4 border border-white/5 hover:bg-surface-container-high transition-colors">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Vibrant digital art of an Afrobeats album cover, showcasing stylized silhouettes of people dancing in a sunset-drenched Savannah landscape. The palette includes warm oranges, deep purples, and striking gold accents, encapsulated in a sleek, minimalist frame." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSYwSItPrZvE1EYzhifmJio3PMDdUAFCgNCielsiP8Iml48A0TdbIDJNYVvIWT8qN_LhMfixfeG9l78hEq6A2tsKhRb-3S8jMhSIourpWWtoGwyj2zI_NK88d2rXIZMIGQtDFHHJS8D2e5LLCl9EEBsRntT5eNqNJXpXKOE5fRU5nEfGGG8pQepFwjvkA_hRj-HIy7UXBVUJpp6TBZGe8j5Y4qgDhv493tqlfwI071Lfn_aQcRsZMU8jIu9Wb7vgy9dpwtucq2WzRn"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-label-lg text-label-lg">Summer High</h3>
+<p class="font-label-sm text-[12px] text-on-surface-variant">Davido • 02:58</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="w-6 h-6 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Small round user avatar of Kofi." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR17NjOlKnjv6oMHzySms9lN4iJBKfKSQVdLwLVVZ_ToF2-4bhisHK31-x4_3OPeZ7tdiAVqBG6gyEVGYBWT25J-V_l_5_u5bDoaMmYZ2bjC1vrvYV69WCcJc6FXVu7DqdTILXruU-DjbIfXcLvdOT39J4_EHEJCJNZ9SwuN2mPZeyfW-4LVwgLzrm7ndve0BOMWoZZxZdI1_lh2ya1qYt_NsvaFELZr7beXhQjc2FzdUogZR7wUEU_N-iAFrk5E8d5iXntgYrIGXl"/>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Kofi</span>
+</div>
+</div>
+<!-- Track 3 -->
+<div class="bg-surface-container-low p-4 rounded-xl flex items-center gap-4 border border-white/5 hover:bg-surface-container-high transition-colors">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist abstract music art with a single glowing circular line representing a soundwave. The line is saffron yellow, cutting through a pitch-black background with a soft, hazy glow, creating a serene and sophisticated atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrEu7Ie3Q9LsKFkI05gYMyKFRBlNF4NhwLqu4TSVWrvtd-QczOcbB8Iwhlu-z7OuGIjmim4TmBfUiIAj71ymYgy05Y1s0ocjoqLEOGQhHHFgCh8mj2NyYfsN2xti0H_VY1aID_Lh_FKt2j-_lDnf9B_O6TgHGf6sJMFTwM6Iw1DKWc8oE3IrTdYxzojXVsnCmOGcdii1oImTMPufbpGny0Q2yRR-nSRtcwN9FuN0UccN3Sdg_Bpa4T52vA-1_g1JECSjExACJ3trs8"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-label-lg text-label-lg">Mnike (Remix)</h3>
+<p class="font-label-sm text-[12px] text-on-surface-variant">Tyler ICU • 04:15</p>
+</div>
+<div class="flex flex-col items-end gap-1">
+<div class="w-6 h-6 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Small round user avatar of Zanele." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYQycowa6_ENo0RGu6Qvks0B_z36Q59bbS4tyCFrgOxKRb5ZTQuEm8eM-5fco3ljMIHtD58heBDJMuB6mHrizRoiaU8UPp__erAGPi0W-PwuYivH9jgYfOsqtDhzXIABcTNhSQ4Pk3btWzgl9AQsdYQpKBrPzfuelp0jCa6VAMYMd2IDIaifiKuIwCRxMgiJs_jP1yitBHowt4WDp9JVkG29aQUeftdgYb0yc89HHimGruIquiC5ng80pd5hxSekb1RkRuKSLZODod"/>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Zanele</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-28 right-margin-mobile w-14 h-14 bg-primary-fixed rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all duration-200 z-50 text-on-primary-fixed">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- Bottom Player Preview (Glass) -->
+<div class="fixed bottom-20 left-4 right-4 h-16 glass-panel rounded-xl z-50 flex items-center px-4 gap-3">
+<div class="w-10 h-10 rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Thumbnail of Logdrum Ritual album cover." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbMup-qNhHOVLxtBgBpl78udfbX8kOgxirAhERPLVrEXxuEr9mCRfVzW97yldMmrZjipyFxAtTzfSopcXGestZ4areKmoCq1p0-jaGh_2kap0lH3IMvBRzy_zOXArsWhl9q2FsOEwW37A088lhF4y-87s85oBhb9fLCYGsV-e4G-e2IJxBK9fuy9VGFJVhevOcMjFsMvJ9ov_M7Pe-Iezvr2tEQU8Po4dUhgCfUqGBRf9xH_pYh0xLFMcmlrMmuduBH4Uy0SaKSMDF"/>
+</div>
+<div class="flex-grow">
+<p class="text-[12px] font-bold text-primary-fixed-dim truncate">Logdrum Ritual</p>
+<p class="text-[10px] text-on-surface-variant">Now Playing • Session</p>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary-fixed">pause</span>
+<span class="material-symbols-outlined">skip_next</span>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container/80 backdrop-blur-xl border-t border-white/5 shadow-xl rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">library_music</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary-fixed dark:text-primary-fixed-dim font-bold active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">group</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Party</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for queue items
+        document.querySelectorAll('.bg-surface-container-low').forEach(item => {
+            item.addEventListener('click', () => {
+                item.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    item.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+
+        // Atmospheric effect: random slight movement of radar center
+        const radarCenter = document.querySelector('.radar-wave').parentElement;
+        document.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 10;
+            const y = (e.clientY / window.innerHeight - 0.5) * 10;
+            radarCenter.style.transform = `translate(${x}px, ${y}px)`;
+        });
+    </script>
+</body></html>

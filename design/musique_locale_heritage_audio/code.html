@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sauti - Musique Locale</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #000000;
+        }
+        .tribal-texture {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l5 10h-10l5-10zM0 30l10 5v-10l-10 5zM60 30l-10-5v10l10-5zM30 60l-5-10h10l-5 10z' fill='%23ffffff' fill-opacity='0.05'/%3E%3C/svg%3E");
+        }
+        .glass-player {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "background": "#131313",
+                "surface-container-low": "#1c1b1b",
+                "on-secondary": "#640d00",
+                "on-primary-fixed-variant": "#005227",
+                "on-error-container": "#ffdad6",
+                "on-error": "#690005",
+                "on-primary-fixed": "#00210c",
+                "on-secondary-fixed-variant": "#8d1600",
+                "on-background": "#e5e2e1",
+                "on-tertiary": "#3f2e00",
+                "on-primary-container": "#007137",
+                "inverse-primary": "#006d35",
+                "surface-tint": "#00e476",
+                "inverse-surface": "#e5e2e1",
+                "primary-fixed": "#61ff97",
+                "secondary-fixed": "#ffdad3",
+                "on-surface-variant": "#b9cbb9",
+                "tertiary-container": "#ffda89",
+                "primary-fixed-dim": "#00e476",
+                "surface-bright": "#393939",
+                "on-surface": "#e5e2e1",
+                "secondary-fixed-dim": "#ffb4a4",
+                "surface-container": "#201f1f",
+                "secondary-container": "#a71c00",
+                "inverse-on-surface": "#313030",
+                "tertiary": "#fffaf7",
+                "error-container": "#93000a",
+                "tertiary-fixed-dim": "#f7be1d",
+                "surface-container-high": "#2a2a2a",
+                "on-tertiary-fixed": "#251a00",
+                "surface-variant": "#353534",
+                "on-tertiary-fixed-variant": "#5a4300",
+                "on-tertiary-container": "#7c5d00",
+                "surface-container-highest": "#353534",
+                "secondary": "#ffb4a4",
+                "error": "#ffb4ab",
+                "outline": "#849584",
+                "primary-container": "#00ff85",
+                "on-secondary-container": "#ffb9aa",
+                "on-secondary-fixed": "#3e0500",
+                "surface-dim": "#131313",
+                "tertiary-fixed": "#ffdf9a",
+                "surface-container-lowest": "#0e0e0e",
+                "on-primary": "#003919",
+                "surface": "#131313",
+                "primary": "#f0ffee",
+                "outline-variant": "#3b4b3d"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "base": "8px",
+                "margin-desktop": "48px",
+                "lg": "40px",
+                "sm": "12px",
+                "gutter": "16px",
+                "xs": "4px",
+                "margin-mobile": "24px",
+                "md": "24px",
+                "xl": "64px"
+            },
+            "fontFamily": {
+                "headline-md": ["Plus Jakarta Sans"],
+                "label-sm": ["Plus Jakarta Sans"],
+                "body-lg": ["Plus Jakarta Sans"],
+                "headline-lg-mobile": ["Plus Jakarta Sans"],
+                "display-lg": ["Plus Jakarta Sans"],
+                "headline-lg": ["Plus Jakarta Sans"],
+                "body-md": ["Plus Jakarta Sans"],
+                "label-lg": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "500"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center px-margin-mobile py-base w-full fixed top-0 z-50 bg-background">
+<h1 class="font-display-lg text-display-lg text-primary-fixed-dim tracking-tighter">Sauti</h1>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-100">search</button>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden border border-white/10 active:scale-95 duration-100 transition-transform">
+<img alt="User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1UyCz62RZjuX-rXbSRZGfQyqZ9qI_OTgS7Z-dVAsM054Bh8cNrAl71B_e1uD3flw6BuVoDYd-tDFNmpgAGsci3PWwZjua1gD_zGr6eKeE9tRipk1wtEVIsXcLeuIwH587AjiEOgzljw7M_0nMuArA2gGaOw46fX5-4QJrB61hM3OQ4zssdAonDzIsmZesrg_1HpXqLL1cJ2PF0a0bc-LC4mp1QACKe9fwAtHCATxj2Rd5RD_lyyhjpgOuQK-pLmGlJT81Tmn2rzi2"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-100">settings</button>
+</div>
+</header>
+<main class="pt-24 pb-32 min-h-screen tribal-texture">
+<!-- Header Section -->
+<section class="px-margin-mobile mb-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-xs">Musique Locale</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Gérez vos fichiers audio stockés physiquement sur cet appareil.</p>
+</section>
+<!-- Tabs & Action Section -->
+<section class="px-margin-mobile mb-md flex items-center justify-between">
+<div class="flex gap-4">
+<button class="font-label-lg text-label-lg text-primary-fixed border-b-2 border-primary-fixed pb-2 px-1">Titres</button>
+<button class="font-label-lg text-label-lg text-on-surface-variant pb-2 px-1 hover:text-on-surface transition-colors">Dossiers</button>
+</div>
+<button class="flex items-center gap-2 bg-secondary-container text-on-secondary-container px-4 py-2 rounded-full font-label-lg text-label-lg hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">cell_tower</span>
+                Scanner le stockage
+            </button>
+</section>
+<!-- Song List -->
+<section class="px-margin-mobile flex flex-col gap-base">
+<!-- Song Item 1 -->
+<div class="group flex items-center gap-4 p-3 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-container transition-colors cursor-pointer">
+<div class="relative w-14 h-14 bg-surface-container-highest rounded-lg overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A macro photograph of a dark vinyl record with vibrant green and orange lighting highlights, reflecting a deep techno or amapiano vibe. The surface of the record has subtle tribal etchings that catch the light, creating a sense of depth and tactile heritage in a minimalist setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgrMkzVAQe_8CVB_hSAgh7wbk-tQqgDzADinJzWp_0xccRjaCQHyYDZdXdT1TFsM0kjSWwof2PxHR19hRbYS2NAmuKrpc5GVPFlJB-B1eIyCptQxLdVuxpqFhPGcNgXHeoXbyyJHnr3G-cEp-3xBnur0f1aUFEPywOXGcTvvb_U5hENR8yJkMf2xRZk0Ds51qRmDGOwl4O662gMUR2micvv8NAkqXQPpbptFMUaiecfUXkP_EnUuXYyrmwSIKShoZqT5RT_KZaSREE"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary-fixed">play_arrow</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-label-lg text-label-lg truncate text-on-surface">Burnin' Sun</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Kelvin Momo • Amapiano Roots</p>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<span class="font-label-sm text-[10px] uppercase tracking-widest text-primary-fixed-dim bg-on-primary/20 px-1.5 py-0.5 rounded border border-primary-fixed-dim/20">FLAC</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">34.2 MB</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-2">more_vert</button>
+</div>
+<!-- Song Item 2 -->
+<div class="group flex items-center gap-4 p-3 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-container transition-colors cursor-pointer">
+<div class="relative w-14 h-14 bg-surface-container-highest rounded-lg overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Abstract musical composition featuring deep shadow-play and golden-hued lighting. The image captures the essence of rhythmic energy with blurred geometric patterns reminiscent of West African textiles. A high-end, sophisticated artistic aesthetic with a central focus on light and shadow." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8YHpAb-hYmoE_FBZv3Dt_XniKSOegrhgc3PmEzT_Bqh4VmD_XMmha1CtlQEobpiJHhWFFy7FQukasA1kossHROGMm1JdYdNmhX9GVArCFTvSvw3fpFwx2wA7egDYIISygM7eqhOeqlKQaX6LuFNCojQDC1k_2We-aPd_AShH9XLBhIzb2ReyG-gnoI0mFu8fxShKxB8Je44V2j3jOYBBjYmCTZ4AE4Htmf9tUIezREZnDIEOW0a18OSGSIZRBdDjtQbnDGGnv7wRJ"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary-fixed">play_arrow</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-label-lg text-label-lg truncate text-on-surface">Midnight City Vibes</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Sauti Collective • Lo-fi Beats</p>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant bg-surface-variant px-1.5 py-0.5 rounded">MP3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">8.5 MB</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-2">more_vert</button>
+</div>
+<!-- Song Item 3 -->
+<div class="group flex items-center gap-4 p-3 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-container transition-colors cursor-pointer">
+<div class="relative w-14 h-14 bg-surface-container-highest rounded-lg overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="A minimalist studio setting showing professional audio equipment on a dark wooden desk. The scene is bathed in a cool emerald green ambient light, highlighting the sleek metallic edges of a microphone and headphones. The atmosphere is quiet, creative, and focused on pure high-fidelity sound." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdNAWzDiOREeRkn9CvSEyLQXwCD7LExsJiOoU0pn3qOIbzR_-5P_Djsu0TU4yxmumVlsmfG70WwWSJyYepcG-WSYbYT7mm6S1JMFb5NpvO_KD6uambt7fVB_thjyGQWgnHqx3UGOVPlxO3wq7snjFcjVqFWj5f98XpaNnnIgmN-rIj1yImHTIQ-DRoRKFNc0baRJpRYi2kxZXcdySRYD-hDSrBvJUUwz7U_LuHQks0WNJ0UdVkP_wmfpGN4CF1OJjlmvP2vjbpq3L9"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary-fixed">play_arrow</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-label-lg text-label-lg truncate text-on-surface">Lagos Nightwalk</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Wizkid ft. Tems • Afrobeats</p>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<span class="font-label-sm text-[10px] uppercase tracking-widest text-primary-fixed-dim bg-on-primary/20 px-1.5 py-0.5 rounded border border-primary-fixed-dim/20">FLAC</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">45.1 MB</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-2">more_vert</button>
+</div>
+<!-- Song Item 4 -->
+<div class="group flex items-center gap-4 p-3 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-container transition-colors cursor-pointer">
+<div class="relative w-14 h-14 bg-surface-container-highest rounded-lg overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Vibrant concert photography featuring silhouetted figures against a backdrop of deep ocre and amber stage lights. The image is grainy and atmospheric, capturing the motion and rhythmic energy of a live performance. Subtle tribal motifs are layered over the scene at a low opacity to emphasize cultural identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVMsp27QjUcViITaUrHkDrgQ0TToyAf7pPKeHF093igfQ0kv7goMm83JcKEurLDP4Zkbf2wPTjJhq0cKL_eT8ODFHNXyLGVK92J42wgcjQHXCMb8ofcmS899OrDlT5O9l0OMZa2nsfxsD5A3Xcus6856XxJyxLsQ2aL6tmYLFwa0d8-CYF9gEEv12d44UDdWpeVUKVQoIWkz5UiXcPBgbGlEWYKjy7sxLeZROp7sMoaXuQ83_tU6ZBF59Kvq_vyQY5QPgRlMUUKGWJ"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary-fixed">play_arrow</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-label-lg text-label-lg truncate text-on-surface">Desert Rose</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Tinariwen • Saharan Blues</p>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant bg-surface-variant px-1.5 py-0.5 rounded">MP3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">12.2 MB</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-2">more_vert</button>
+</div>
+<!-- Song Item 5 -->
+<div class="group flex items-center gap-4 p-3 bg-surface-container-low rounded-xl border border-white/5 hover:bg-surface-container transition-colors cursor-pointer">
+<div class="relative w-14 h-14 bg-surface-container-highest rounded-lg overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]">music_note</span>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary-fixed">play_arrow</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-label-lg text-label-lg truncate text-on-surface">Voice Note 002</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant truncate">Unknown Artist</p>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface-variant bg-surface-variant px-1.5 py-0.5 rounded">MP3</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2.1 MB</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface p-2">more_vert</button>
+</div>
+</section>
+<!-- Storage Status (Bento Element) -->
+<section class="px-margin-mobile mt-lg">
+<div class="p-6 bg-surface-container-highest rounded-2xl border border-white/5 relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center justify-between mb-4">
+<h4 class="font-label-lg text-label-lg text-on-surface uppercase tracking-widest">État du stockage</h4>
+<span class="font-label-sm text-label-sm text-primary-fixed">128 GB de libre</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden mb-2">
+<div class="h-full bg-primary-fixed w-[65%]"></div>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">742 titres trouvés dans 12 dossiers.</p>
+</div>
+<div class="absolute bottom-[-10%] right-[-10%] opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[120px] text-white">folder_open</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Mini Player (Floating) -->
+<div class="fixed bottom-[88px] left-margin-mobile right-margin-mobile glass-player rounded-xl p-2 flex items-center gap-3 border border-white/10 shadow-2xl z-40">
+<img class="w-10 h-10 rounded-lg object-cover" data-alt="Album art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCereY8c-bC2BKZ5wY45pVdA7qkFian7OWVKcnf1Cv3WhoN1UhG60N7PTPI74DqtyX2Gwf24mTQSLzccyzusPL2Owj1xiCJn2BRQUudFfS_GYJh_5ialN4w-PGrla4oD4flyq8w3xyJeCFzzX2fPOgigzqYlTgajZpVkk1WlGaEPtq27PCQpr2M4zJKffg0nR0kG0g46spXxbFiL-sus9IaCNdojntSKZ4Ubgo6Ugyu2Fq3cCMi-66KLfcUGt13DUprJ8RNvK3-3aVg"/>
+<div class="flex-1 min-w-0">
+<h4 class="font-label-sm text-label-sm text-on-surface truncate">Burnin' Sun</h4>
+<p class="text-[10px] text-on-surface-variant truncate">Kelvin Momo</p>
+</div>
+<div class="flex items-center gap-1">
+<button class="material-symbols-outlined text-on-surface p-1">skip_previous</button>
+<button class="material-symbols-outlined text-secondary-fixed bg-secondary-container w-8 h-8 rounded-full flex items-center justify-center" style="font-variation-settings: 'FILL' 1;">play_arrow</button>
+<button class="material-symbols-outlined text-on-surface p-1">skip_next</button>
+</div>
+<div class="absolute bottom-0 left-0 h-[2px] bg-primary-fixed w-[35%]"></div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container/80 dark:bg-surface-container/80 backdrop-blur-xl border-t border-white/5 shadow-xl rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary-fixed dark:text-primary-fixed-dim font-bold active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">library_music</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Party</span>
+</a>
+</nav>
+<script>
+        // Simple Micro-interactions
+        document.querySelectorAll('.group').forEach(item => {
+            item.addEventListener('click', () => {
+                // Mock song change interaction
+                const songTitle = item.querySelector('h3').innerText;
+                const artist = item.querySelector('p').innerText.split('•')[0];
+                const miniPlayer = document.querySelector('.glass-player');
+                miniPlayer.querySelector('h4').innerText = songTitle;
+                miniPlayer.querySelector('p').innerText = artist;
+                
+                // Visual feedback
+                item.classList.add('scale-[0.98]');
+                setTimeout(() => item.classList.remove('scale-[0.98]'), 100);
+            });
+        });
+
+        // Tab Switching Simulation
+        const tabs = document.querySelectorAll('.font-label-lg');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                if(tab.innerText === "Scanner le stockage") return;
+                tabs.forEach(t => {
+                    t.classList.remove('text-primary-fixed', 'border-b-2', 'border-primary-fixed');
+                    t.classList.add('text-on-surface-variant');
+                });
+                tab.classList.add('text-primary-fixed', 'border-b-2', 'border-primary-fixed');
+                tab.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sauti - Explore African Rhythms</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #000000;
+            color: #e5e2e1;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .tribal-pattern {
+            mask-image: radial-gradient(circle at bottom right, black, transparent);
+            -webkit-mask-image: radial-gradient(circle at bottom right, black, transparent);
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l10 10-10 10-10-10L30 0zM10 20l10 10-10 10-10-10 10-10zm40 0l10 10-10 10-10-10 10-10zM30 40l10 10-10 10-10-10 10-10z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Custom hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#ffda89",
+                        "secondary-fixed-dim": "#ffb4a4",
+                        "primary-fixed": "#61ff97",
+                        "primary-fixed-dim": "#00e476",
+                        "tertiary": "#fffaf7",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "inverse-surface": "#e5e2e1",
+                        "primary": "#f0ffee",
+                        "secondary-fixed": "#ffdad3",
+                        "surface-container": "#201f1f",
+                        "on-primary-fixed": "#00210c",
+                        "surface-container-lowest": "#0e0e0e",
+                        "tertiary-fixed": "#ffdf9a",
+                        "surface-container-high": "#2a2a2a",
+                        "on-secondary-fixed-variant": "#8d1600",
+                        "background": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "on-primary": "#003919",
+                        "on-surface-variant": "#b9cbb9",
+                        "on-surface": "#e5e2e1",
+                        "surface-container-highest": "#353534",
+                        "on-tertiary": "#3f2e00",
+                        "surface-dim": "#131313",
+                        "inverse-on-surface": "#313030",
+                        "outline": "#849584",
+                        "on-error": "#690005",
+                        "error-container": "#93000a",
+                        "on-background": "#e5e2e1",
+                        "on-secondary-fixed": "#3e0500",
+                        "on-secondary": "#640d00",
+                        "surface-variant": "#353534",
+                        "secondary": "#ffb4a4",
+                        "outline-variant": "#3b4b3d",
+                        "inverse-primary": "#006d35",
+                        "on-primary-container": "#007137",
+                        "secondary-container": "#a71c00",
+                        "surface-bright": "#393939",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "primary-container": "#00ff85",
+                        "on-tertiary-fixed": "#251a00",
+                        "surface": "#131313",
+                        "error": "#ffb4ab",
+                        "surface-tint": "#00e476",
+                        "on-secondary-container": "#ffb9aa",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed-variant": "#005227",
+                        "on-tertiary-container": "#7c5d00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "margin-desktop": "48px",
+                        "base": "8px",
+                        "lg": "40px",
+                        "sm": "12px",
+                        "margin-mobile": "24px",
+                        "xl": "64px",
+                        "md": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<!-- Top AppBar -->
+<header class="bg-background fixed top-0 z-50 flex justify-between items-center px-margin-mobile py-base w-full">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-white/5">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a young African man with a calm and confident expression, set against a dark charcoal background. He has a sharp, modern hairstyle and is wearing high-end minimalist clothing. The lighting is dramatic and soft, emphasizing skin texture and creating a premium, dark-gallery aesthetic that aligns with a sophisticated music platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyNJSbDfue0w2NbG7VylZKgIgoy3hs9ckyMCFqd_0tYx4TQ9vWz8uZmBR00aYWQyL1pJuMi8pj42kJN-5QhUnc1-FShwnkvOjIGaxQjUdIW7uHP9ZcsGtckpYe8eqDKXf4RnX-ho0a_-XGuxHnbkFMRxYLaKPQpj832ZBxmpEDp7NF6ZiY0Er1VpkZzw0idIFpjmhTi3KvA2vBVrJZ20P5NZqAJG9muOC8e6u3zJKYd4mAVLMYwH6N9IfGaEb_gPEbXyJTHU6wnYwE"/>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary-fixed-dim tracking-tighter">Sauti</h1>
+</div>
+<button class="material-symbols-outlined text-primary-fixed hover:opacity-80 transition-opacity active:scale-95 duration-100 transition-transform">
+            settings
+        </button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-32 px-margin-mobile md:px-margin-desktop max-w-7xl mx-auto">
+<!-- Search Section -->
+<section class="mb-lg">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary-fixed transition-colors">search</span>
+</div>
+<input class="w-full bg-surface-container-low border-b-2 border-transparent focus:border-primary-fixed focus:ring-0 text-on-surface py-4 pl-14 pr-4 rounded-xl font-body-lg text-body-lg transition-all placeholder:text-on-surface-variant/50" placeholder="Artists, songs, or genres" type="text"/>
+</div>
+</section>
+<!-- Featured Mood -->
+<section class="mb-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-md text-on-surface">Daily Discovery</h2>
+<div class="relative w-full h-48 rounded-xl overflow-hidden group cursor-pointer">
+<img class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A high-energy concert scene in Lagos at night, with vibrant Emerald Green and Saffron Yellow stage lights cutting through a hazy, atmospheric crowd. The focus is on the rhythmic energy of the silhouettes dancing. The image has a cinematic, high-contrast look with deep black shadows and glowing highlights, reflecting a premium ethno-minimalist design style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJiooX-ureSuIRyq8Pt0JPzZq9LAnvwLhaeQex-iafmW59JjEkJepZ0rcJmXnhFUlVLmQBqruBHirWeRUBo_e5HT1AmYcpoc_Oiu0fDsW8SReCRJTuRsd7hRM8C7Y0Zt3yH-acCd2xJaKw32zM-NNMZ_oaAsUpsGKNaQN3FGMCbWCy18yFwB01rmO2NXO3m_T1GevdlRurS1UBlToNACfYRy84tpqRp2LMPiqrx4yVgtIGkIAgqqXjRVmOLsphJjfKE6IShBvTtUmO"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
+<span class="text-primary-fixed font-label-lg text-label-lg uppercase mb-1">Editors' Pick</span>
+<h3 class="font-headline-md text-headline-md font-bold">Lagos Night Rhythms</h3>
+</div>
+</div>
+</section>
+<!-- Categories Bento Grid -->
+<section>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-md text-on-surface">Explore Genres</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<!-- Afrobeats Card -->
+<div class="relative h-40 bg-primary-container/20 border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none"></div>
+<span class="relative z-10 font-bold text-lg text-primary-fixed">Afrobeats</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-primary-fixed opacity-40 group-hover:opacity-100 transition-opacity">radio</span>
+</div>
+<!-- Amapiano Card -->
+<div class="relative h-40 bg-secondary-container/20 border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none" style="transform: rotate(90deg);"></div>
+<span class="relative z-10 font-bold text-lg text-secondary">Amapiano</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-secondary opacity-40 group-hover:opacity-100 transition-opacity">piano</span>
+</div>
+<!-- Makossa Card -->
+<div class="relative h-40 bg-tertiary-container/10 border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none" style="transform: scaleX(-1);"></div>
+<span class="relative z-10 font-bold text-lg text-tertiary-fixed-dim">Makossa</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-tertiary-fixed-dim opacity-40 group-hover:opacity-100 transition-opacity">waves</span>
+</div>
+<!-- Bikutsi Card -->
+<div class="relative h-40 bg-surface-container-highest border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none"></div>
+<span class="relative z-10 font-bold text-lg text-on-surface">Bikutsi</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-on-surface opacity-40 group-hover:opacity-100 transition-opacity">auto_graph</span>
+</div>
+<!-- Highlife Card -->
+<div class="relative h-40 bg-primary-container/10 border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none"></div>
+<span class="relative z-10 font-bold text-lg text-primary-fixed-dim">Highlife</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-primary-fixed-dim opacity-40 group-hover:opacity-100 transition-opacity">equalizer</span>
+</div>
+<!-- Ethio-Jazz Card -->
+<div class="relative h-40 bg-secondary-container/10 border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none"></div>
+<span class="relative z-10 font-bold text-lg text-secondary-fixed-dim">Ethio-Jazz</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-secondary-fixed-dim opacity-40 group-hover:opacity-100 transition-opacity">nightlife</span>
+</div>
+<!-- Gqom Card -->
+<div class="relative h-40 bg-surface-container-high border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none"></div>
+<span class="relative z-10 font-bold text-lg text-outline">Gqom</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-outline opacity-40 group-hover:opacity-100 transition-opacity">noise_control_on</span>
+</div>
+<!-- Kizomba Card -->
+<div class="relative h-40 bg-tertiary-container/5 border border-white/5 rounded-xl p-4 overflow-hidden group cursor-pointer active:scale-95 transition-all">
+<div class="absolute inset-0 tribal-pattern opacity-10 pointer-events-none"></div>
+<span class="relative z-10 font-bold text-lg text-tertiary">Kizomba</span>
+<span class="material-symbols-outlined absolute bottom-4 right-4 text-tertiary opacity-40 group-hover:opacity-100 transition-opacity">favorite</span>
+</div>
+</div>
+</section>
+<!-- Moods & Moments -->
+<section class="mt-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-md text-on-surface">Moods &amp; Moments</h2>
+<div class="flex overflow-x-auto gap-4 no-scrollbar pb-4">
+<div class="flex-shrink-0 w-32 h-32 rounded-full border border-white/10 flex flex-col items-center justify-center bg-surface-container-low hover:border-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary-fixed-dim mb-2">flare</span>
+<span class="font-label-lg text-label-lg">Morning</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 rounded-full border border-white/10 flex flex-col items-center justify-center bg-surface-container-low hover:border-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-secondary mb-2">fitness_center</span>
+<span class="font-label-lg text-label-lg">Workout</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 rounded-full border border-white/10 flex flex-col items-center justify-center bg-surface-container-low hover:border-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-tertiary-fixed-dim mb-2">self_improvement</span>
+<span class="font-label-lg text-label-lg">Focus</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 rounded-full border border-white/10 flex flex-col items-center justify-center bg-surface-container-low hover:border-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-primary-fixed mb-2">celebration</span>
+<span class="font-label-lg text-label-lg">Party</span>
+</div>
+<div class="flex-shrink-0 w-32 h-32 rounded-full border border-white/10 flex flex-col items-center justify-center bg-surface-container-low hover:border-primary-fixed transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant mb-2">dark_mode</span>
+<span class="font-label-lg text-label-lg">Sleep</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 glass-nav bg-surface-container/80 flex justify-around items-center px-4 pb-4 pt-2 shadow-xl rounded-t-xl border-t border-white/5">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Home</span>
+</a>
+<!-- Explore (Active) -->
+<a class="flex flex-col items-center justify-center text-primary-fixed font-bold active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Explore</span>
+</a>
+<!-- Library -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">library_music</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Library</span>
+</a>
+<!-- Party -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest mt-1">Party</span>
+</a>
+</nav>
+<!-- Now Playing Bar (Mini Player - Glassmorphic) -->
+<div class="fixed bottom-20 left-4 right-4 z-40 bg-surface-container-highest/60 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/10 shadow-2xl">
+<div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border border-white/5">
+<img alt="Track Art" class="w-full h-full object-cover" data-alt="Vibrant album artwork featuring an abstract, geometric representation of African percussion instruments. The color palette is dominated by Saffron Yellow, Emerald Green, and deep charcoal, with intricate tribal linework weaving through the composition. The style is modern, sharp, and highly artistic, reflecting the ethno-minimalist core of the platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDAFU3N50lTwMDtFIIe8MDUQsfyEIs5ATdO8dOHocRY4skJpL_HXQs9AJHheiefMQgDVJd9ShzODThcnfcFj0VQr-JWYffRCGyN4lrQ4iy7Hdo7zpNVPqQm8f3liDaBUIpJLPZCUGnnZIsINrHJRAnIdLnfA2prTXbQOWPN9emTl1_A_bF9CqjdyVT4nTe8eZt5MNah69hnmAjx6XusOBFpPCs1Tzde1VJiWCGLUoW4-XvdIFfqtcix-Cze4TNSLN3XemW6QB7IFpr"/>
+</div>
+<div class="flex-grow min-w-0">
+<h4 class="font-label-lg text-label-lg truncate text-on-surface">Jerusalema</h4>
+<p class="font-label-sm text-label-sm truncate text-on-surface-variant">Master KG feat. Nomcebo</p>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface cursor-pointer">favorite</span>
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary cursor-pointer active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 h-0.5 bg-primary-fixed-dim rounded-full" style="width: 65%;"></div>
+</div>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Potential for subtle animation logic
+            });
+        });
+
+        // Search bar focus behavior
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            console.log('Searching...');
+        });
+    </script>
+</body></html>
