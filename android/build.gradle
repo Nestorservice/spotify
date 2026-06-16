@@ -1,29 +1,29 @@
-// 1. SCRIPT AUTO-PATCH (Pour corriger l'erreur de react-native-track-player sur GitHub)
-def patchTrackPlayer() {
-    def filePath = "${rootProject.projectDir}/../node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt"
-    def file = new File(filePath)
-    if (file.exists()) {
-        println "------- PATCHING TRACK PLAYER FOR KOTLIN 1.9+ -------"
-        def content = file.text
-        // Correction des deux lignes problématiques (548 et 588)
-        content = content.replace("options.toBundle()", "options?.toBundle() ?: android.os.Bundle()")
-        file.write(content)
-        println "------- PATCH COMPLETED -------"
-    }
-}
-patchTrackPlayer()
+// 1. CORRECTIF DE FORCE (S'exécute immédiatement sur GitHub Actions)
+def nodeModulesPath = "${rootProject.projectDir}/../node_modules"
+def trackPlayerFile = "${nodeModulesPath}/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt"
 
-// 2. CONFIGURATION DU PROJET
-ext {
-    buildToolsVersion = "34.0.0"
-    minSdkVersion = 24
-    compileSdkVersion = 34
-    targetSdkVersion = 34
-    ndkVersion = "27.1.12297006"
-    kotlinVersion = "1.8.21" // On reste sur 1.8.21 qui est plus stable pour RN
+def file = new File(trackPlayerFile)
+if (file.exists()) {
+    println "--- ACTION: Correction forcée de MusicModule.kt ---"
+    def content = file.text
+    // Correction des erreurs de type Bundle (lignes 548 et 588)
+    content = content.replace("options.toBundle()", "options?.toBundle() ?: android.os.Bundle()")
+    file.write(content)
+    println "--- ACTION: Correction terminée avec succès ---"
+} else {
+    println "--- ATTENTION: Fichier non trouvé à : ${trackPlayerFile} ---"
 }
 
 buildscript {
+    ext {
+        // Changement de versions pour la compatibilité avec Gradle 9+
+        buildToolsVersion = "35.0.0" 
+        minSdkVersion = 24
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "1.8.21" 
+    }
     repositories {
         google()
         mavenCentral()
@@ -41,14 +41,18 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // Force toutes les bibliothèques à ignorer les erreurs de compilation Kotlin mineures
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += [
+                "-Xskip-prerelease-check", 
+                "-Xallow-no-source-files",
+                "-Xjvm-default=all"
+            ]
+            suppressWarnings = true
+        }
+    }
 }
 
 apply plugin: "com.facebook.react.rootproject"
-
-// Force la suppression des erreurs strictes pour toutes les bibliothèques
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += ["-Xskip-prerelease-check", "-Xallow-no-source-files"]
-        suppressWarnings = true
-    }
-}
