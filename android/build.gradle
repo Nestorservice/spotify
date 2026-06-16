@@ -6,7 +6,7 @@ ext {
     compileSdkVersion = 34
     targetSdkVersion = 34
     ndkVersion = "27.1.12297006"
-    kotlinVersion = "1.9.24" // Corrigé : Rétrogradé de 2.1.20 pour assurer la compatibilité avec les dépendances
+    kotlinVersion = "1.9.24" // Conservé en version stable 1.9
 }
 
 buildscript {
@@ -27,17 +27,17 @@ allprojects {
         google()
         mavenCentral()
     }
-}
-
-apply plugin: "com.facebook.react.rootproject"
-
-// Force toutes les dépendances tierces (comme react-native-track-player) à utiliser la version Kotlin 1.9.24
-subprojects {
-    afterEvaluate { project ->
-        if (project.hasProperty('android')) {
-            project.ext {
-                kotlinVersion = "1.9.24"
+    
+    // Corrigé : Force proprement la version de Kotlin pour toutes les dépendances sans bloquer Gradle
+    configurations.all {
+        resolutionStrategy {
+            eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'org.jetbrains.kotlin') {
+                    details.useVersion "1.9.24"
+                }
             }
         }
     }
 }
+
+apply plugin: "com.facebook.react.rootproject"
