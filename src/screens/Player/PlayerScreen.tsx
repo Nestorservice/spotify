@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { THEME } from '../../theme';
 import { usePlayerStore } from '../../store/usePlayerStore';
+import { userContentService } from '../../services/UserContentService';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
 const { width } = Dimensions.get('window');
@@ -19,6 +20,14 @@ const { width } = Dimensions.get('window');
 const PlayerScreen = () => {
   const navigation = useNavigation();
   const { currentTrack, isPlaying, setIsPlaying } = usePlayerStore();
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleFavoriteToggle = async () => {
+    if (currentTrack) {
+      const liked = await userContentService.toggleFavorite(currentTrack);
+      setIsFavorite(liked);
+    }
+  };
 
   if (!currentTrack) return null;
 
@@ -53,8 +62,12 @@ const PlayerScreen = () => {
             <Text style={styles.titleText}>{currentTrack.title}</Text>
             <Text style={styles.artistText}>{currentTrack.artist}</Text>
           </View>
-          <TouchableOpacity>
-            <Icon name="favorite" size={32} color={THEME.colors.primaryFixedDim} />
+          <TouchableOpacity onPress={handleFavoriteToggle}>
+            <Icon 
+              name={isFavorite ? "favorite" : "favorite-border"} 
+              size={32} 
+              color={isFavorite ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant} 
+            />
           </TouchableOpacity>
         </View>
 
