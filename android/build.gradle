@@ -6,7 +6,8 @@ ext {
     compileSdkVersion = 34
     targetSdkVersion = 34
     ndkVersion = "27.1.12297006"
-    kotlinVersion = "1.9.24"
+    // Downgrade à 1.8.21 pour corriger l'erreur 'Bundle?' attendu 'Bundle'
+    kotlinVersion = "1.8.21"
 }
 
 buildscript {
@@ -17,7 +18,8 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
+        // Utilisation de la version 1.8.21 ici aussi
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
         classpath("com.google.gms:google-services:4.4.0")
     }
 }
@@ -31,7 +33,7 @@ allprojects {
 
 apply plugin: "com.facebook.react.rootproject"
 
-// Désactive de force les vérifications strictes de Kotlin pour toutes les libs externes
+// Configuration pour assouplir les règles du compilateur Kotlin
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Xskip-prerelease-check", "-Xallow-no-source-files"]
