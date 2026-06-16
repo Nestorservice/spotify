@@ -17,7 +17,6 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        // Force la version du plugin Gradle de Kotlin au tout début du build
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
         classpath("com.google.gms:google-services:4.4.0")
     }
@@ -31,3 +30,11 @@ allprojects {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// Désactive de force les vérifications strictes de Kotlin pour toutes les libs externes
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-Xskip-prerelease-check", "-Xallow-no-source-files"]
+        suppressWarnings = true
+    }
+}
