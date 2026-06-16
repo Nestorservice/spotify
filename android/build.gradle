@@ -1,13 +1,26 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+// 1. SCRIPT AUTO-PATCH (Pour corriger l'erreur de react-native-track-player sur GitHub)
+def patchTrackPlayer() {
+    def filePath = "${rootProject.projectDir}/../node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt"
+    def file = new File(filePath)
+    if (file.exists()) {
+        println "------- PATCHING TRACK PLAYER FOR KOTLIN 1.9+ -------"
+        def content = file.text
+        // Correction des deux lignes problématiques (548 et 588)
+        content = content.replace("options.toBundle()", "options?.toBundle() ?: android.os.Bundle()")
+        file.write(content)
+        println "------- PATCH COMPLETED -------"
+    }
+}
+patchTrackPlayer()
 
+// 2. CONFIGURATION DU PROJET
 ext {
     buildToolsVersion = "34.0.0"
     minSdkVersion = 24
     compileSdkVersion = 34
     targetSdkVersion = 34
     ndkVersion = "27.1.12297006"
-    // Downgrade à 1.8.21 pour corriger l'erreur 'Bundle?' attendu 'Bundle'
-    kotlinVersion = "1.8.21"
+    kotlinVersion = "1.8.21" // On reste sur 1.8.21 qui est plus stable pour RN
 }
 
 buildscript {
@@ -18,7 +31,6 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        // Utilisation de la version 1.8.21 ici aussi
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
         classpath("com.google.gms:google-services:4.4.0")
     }
@@ -33,7 +45,7 @@ allprojects {
 
 apply plugin: "com.facebook.react.rootproject"
 
-// Configuration pour assouplir les règles du compilateur Kotlin
+// Force la suppression des erreurs strictes pour toutes les bibliothèques
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Xskip-prerelease-check", "-Xallow-no-source-files"]
