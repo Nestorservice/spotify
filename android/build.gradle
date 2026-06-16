@@ -6,7 +6,7 @@ ext {
     compileSdkVersion = 34
     targetSdkVersion = 34
     ndkVersion = "27.1.12297006"
-    kotlinVersion = "1.9.24" // Conservé en version stable 1.9
+    kotlinVersion = "1.9.24"
 }
 
 buildscript {
@@ -17,7 +17,8 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        // Force la version du plugin Gradle de Kotlin au tout début du build
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
         classpath("com.google.gms:google-services:4.4.0")
     }
 }
@@ -26,17 +27,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-    }
-    
-    // Corrigé : Force proprement la version de Kotlin pour toutes les dépendances sans bloquer Gradle
-    configurations.all {
-        resolutionStrategy {
-            eachDependency { DependencyResolveDetails details ->
-                if (details.requested.group == 'org.jetbrains.kotlin') {
-                    details.useVersion "1.9.24"
-                }
-            }
-        }
     }
 }
 
