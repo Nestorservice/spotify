@@ -2,6 +2,13 @@
 *** Update File: node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
 @@
 -package com.doublesymmetry.trackplayer.module
+-@file:Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+-package com.doublesymmetry.trackplayer.module
 +@file:Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 +package com.doublesymmetry.trackplayer.module
++
++// Helper to safely convert a nullable Bundle to a non-null Bundle.
++// Use `safeBundle(someNullableBundle)` where appropriate to avoid Kotlin nullability
++// compile errors when passing a Bundle? to Java APIs that expect a non-null Bundle.
++private fun safeBundle(bundle: android.os.Bundle?): android.os.Bundle = bundle ?: android.os.Bundle()
 *** End Patch
