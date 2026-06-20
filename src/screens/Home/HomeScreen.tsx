@@ -11,7 +11,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import TrackPlayer from 'react-native-track-player';
 import { THEME } from '../../theme';
 import { musicService, TrackData } from '../../services/MusicService';
 import { usePlayerStore } from '../../store/usePlayerStore';
@@ -26,6 +25,9 @@ const HomeScreen = () => {
   
   const { setCurrentTrack, setIsPlaying } = usePlayerStore();
 
+  const locals = hits.slice(0, 3);
+  const mixes = hits;
+
   useEffect(() => {
     loadLiveMusic();
   }, []);
@@ -38,18 +40,8 @@ const HomeScreen = () => {
     setLoading(false);
   };
 
-  const handlePlayTrack = async (track: TrackData) => {
+  const handlePlayTrack = (track: TrackData) => {
     try {
-      await TrackPlayer.reset();
-      await TrackPlayer.add({
-        id: track.id,
-        url: track.url,
-        title: track.title,
-        artist: track.artist,
-        artwork: track.artwork,
-      });
-      await TrackPlayer.play();
-      
       setCurrentTrack(track);
       setIsPlaying(true);
     } catch (error) {
@@ -210,6 +202,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: THEME.colors.background,
   },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   scrollContent: {
     paddingTop: 20,
   },
@@ -258,7 +255,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
     padding: THEME.spacing.md,
@@ -344,7 +341,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   playOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',

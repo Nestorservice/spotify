@@ -17,7 +17,8 @@ class UserContentService {
       .doc(track.id);
 
     const doc = await favRef.get();
-    if (doc.exists) {
+    const docExists = typeof doc.exists === 'function' ? (doc.exists as any)() : doc.exists;
+    if (docExists) {
       await favRef.delete();
       return false; // Retiré des favoris
     } else {

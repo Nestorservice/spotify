@@ -10,13 +10,15 @@ import {
   SafeAreaView,
   FlatList,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import TrackPlayer from 'react-native-track-player';
 import { THEME } from '../../theme';
 import { musicService, TrackData } from '../../services/MusicService';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
+
+const { width } = Dimensions.get('window');
 
 const ExploreScreen = () => {
   const [query, setQuery] = useState('');
@@ -36,17 +38,8 @@ const ExploreScreen = () => {
     }
   };
 
-  const handlePlayTrack = async (track: TrackData) => {
+  const handlePlayTrack = (track: TrackData) => {
     try {
-      await TrackPlayer.reset();
-      await TrackPlayer.add({
-        id: track.id,
-        url: track.url,
-        title: track.title,
-        artist: track.artist,
-        artwork: track.artwork,
-      });
-      await TrackPlayer.play();
       setCurrentTrack(track);
       setIsPlaying(true);
     } catch (error) {
@@ -67,6 +60,60 @@ const ExploreScreen = () => {
       <Icon name="play-circle-outline" size={24} color={THEME.colors.primaryFixedDim} />
     </TouchableOpacity>
   );
+
+  return (
+    <View style={styles.container}>
+      <BackgroundMotif />
+      
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.profileContainer}>
+              <Image 
+                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAM4-yMLaTqv9lrCkbyhQk0vOL-q_Kbhkh_fZHeIZoQDUTNqg-ffXeSJgWr797WDIpFhuY-3FvK0IfozpfcEVuDTTIcOv41EfUnmagapH7wHehahlk634KuR2J7hsOXVd84n3LWy6XBuuYrl6dYcPJwvg4ZoCFaq_iErgIALWswQO-c6wLIsssxiDv7QChDFMynCKXUwvZG8ixJGH3ciE_Mmo-jDfcp8gYDT0JS9WpSgni7k3MuLaiGF9kmjk7puy1DdaYgRJ_YimSU' }} 
+                style={styles.profileImage} 
+              />
+            </View>
+            <Text style={styles.brandTitle}>Sauti</Text>
+          </View>
+          <TouchableOpacity>
+            <Icon name="settings" size={24} color={THEME.colors.onSurfaceVariant} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Search Bar */}
+          <View style={styles.searchSection}>
+            <View style={styles.searchBar}>
+              <Icon name="search" size={24} color={THEME.colors.onSurfaceVariant} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Artistes, titres ou genres..."
+                placeholderTextColor={THEME.colors.onSurfaceVariant}
+                value={query}
+                onChangeText={handleSearch}
+              />
+            </View>
+          </View>
+
+          {/* Search Results */}
+          {loading ? (
+            <ActivityIndicator size="large" color={THEME.colors.primaryFixedDim} style={{ marginVertical: 20 }} />
+          ) : results.length > 0 ? (
+            <View style={styles.resultsContainer}>
+              <FlatList
+                data={results}
+                renderItem={renderSearchResult}
+                keyExtractor={(item) => item.id}
+                scrollEnabled={false}
+                contentContainerStyle={styles.resultsList}
+              />
+            </View>
+          ) : null}
 
           {/* Daily Discovery */}
           <View style={styles.section}>
@@ -209,7 +256,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'flex-end',
     padding: 16,

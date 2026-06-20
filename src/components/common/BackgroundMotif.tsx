@@ -27,7 +27,7 @@ const BackgroundMotif = () => {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: '#000000',
     opacity: 0.95,
   },

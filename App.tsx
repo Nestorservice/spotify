@@ -8,12 +8,13 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Video from 'react-native-video';
 import RootNavigator from './src/navigation';
 import { setupPlayer } from './src/services/audio/PlayerService';
 import { usePlayerStore } from './src/store/usePlayerStore';
 
 function App(): React.JSX.Element {
-  const { setCurrentTrack } = usePlayerStore();
+  const { currentTrack, isPlaying, setCurrentTrack, setProgress, setIsPlaying } = usePlayerStore();
 
   useEffect(() => {
     const init = async () => {
@@ -36,6 +37,28 @@ function App(): React.JSX.Element {
     <SafeAreaProvider>
       <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <RootNavigator />
+      {currentTrack && currentTrack.url ? (
+        <Video
+          source={{ uri: currentTrack.url }}
+          paused={!isPlaying}
+          playInBackground={true}
+          ignoreSilentSwitch="ignore"
+          onLoad={(data: any) => {
+            setProgress(0, data.duration);
+          }}
+          onProgress={(data: any) => {
+            setProgress(data.currentTime, data.seekableDuration || data.playableDuration || usePlayerStore.getState().duration || 1);
+          }}
+          onEnd={() => {
+            setIsPlaying(false);
+            setProgress(0, usePlayerStore.getState().duration);
+          }}
+          onError={(err: any) => {
+            console.log('Audio playback error:', err);
+          }}
+          style={{ width: 0, height: 0, position: 'absolute' }}
+        />
+      ) : null}
     </SafeAreaProvider>
   );
 }

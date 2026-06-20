@@ -1,18 +1,3 @@
-// 1. CORRECTIF DE FORCE (S'exécute immédiatement sur GitHub Actions)
-def nodeModulesPath = "${rootProject.projectDir}/../node_modules"
-def trackPlayerFile = "${nodeModulesPath}/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt"
-
-def file = new File(trackPlayerFile)
-if (file.exists()) {
-    println "--- ACTION: Correction forcée de MusicModule.kt ---"
-    def content = file.text
-    // Correction des erreurs de type Bundle (lignes 548 et 588)
-    content = content.replace("options.toBundle()", "options?.toBundle() ?: android.os.Bundle()")
-    file.write(content)
-    println "--- ACTION: Correction terminée avec succès ---"
-} else {
-    println "--- ATTENTION: Fichier non trouvé à : ${trackPlayerFile} ---"
-}
 
 buildscript {
     ext {

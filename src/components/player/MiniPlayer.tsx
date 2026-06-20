@@ -16,9 +16,11 @@ const { width } = Dimensions.get('window');
 
 const MiniPlayer = () => {
   const navigation = useNavigation<any>();
-  const { currentTrack, isPlaying, setIsPlaying } = usePlayerStore();
+  const { currentTrack, isPlaying, setIsPlaying, currentTime, duration } = usePlayerStore();
 
   if (!currentTrack) return null;
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <TouchableOpacity 
@@ -54,7 +56,7 @@ const MiniPlayer = () => {
 
       {/* Progress Bar */}
       <View style={styles.progressContainer}>
-        <View style={[styles.progressBar, { width: '35%' }]} />
+        <View style={[styles.progressBar, { width: `${progressPercent}%` }]} />
       </View>
     </TouchableOpacity>
   );

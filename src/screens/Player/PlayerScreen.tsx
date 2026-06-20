@@ -19,17 +19,26 @@ const { width } = Dimensions.get('window');
 
 const PlayerScreen = () => {
   const navigation = useNavigation();
-  const { currentTrack, isPlaying, setIsPlaying } = usePlayerStore();
+  const { currentTrack, isPlaying, setIsPlaying, currentTime, duration } = usePlayerStore();
   const [isFavorite, setIsFavorite] = useState(false);
 
   const handleFavoriteToggle = async () => {
     if (currentTrack) {
-      const liked = await userContentService.toggleFavorite(currentTrack);
+      const liked = await userContentService.toggleFavorite(currentTrack as any);
       setIsFavorite(liked);
     }
   };
 
   if (!currentTrack) return null;
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  const formatTime = (seconds: number) => {
+    if (isNaN(seconds) || seconds < 0) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
   return (
     <View style={styles.container}>
@@ -49,6 +58,7 @@ const PlayerScreen = () => {
             <Icon name="more-vert" size={28} color={THEME.colors.onSurface} />
           </TouchableOpacity>
         </View>
+      
 
         {/* Album Art */}
         <View style={styles.artContainer}>
@@ -74,11 +84,11 @@ const PlayerScreen = () => {
         {/* Progress Bar */}
         <View style={styles.progressSection}>
           <View style={styles.progressBackground}>
-            <View style={[styles.progressFill, { width: '33%' }]} />
+            <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
           </View>
           <View style={styles.timeLabels}>
-            <Text style={styles.timeText}>1:24</Text>
-            <Text style={styles.timeText}>4:15</Text>
+            <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
+            <Text style={styles.timeText}>{formatTime(duration)}</Text>
           </View>
         </View>
 
@@ -176,7 +186,6 @@ const styles = StyleSheet.create({
     backgroundColor: THEME.colors.primaryFixedDim,
     opacity: 0.15,
     transform: [{ scale: 1.5 }],
-    blurRadius: 100, // Not directly supported in RN View, but we can simulate with transparent circles or libraries
   },
   infoContainer: {
     flexDirection: 'row',

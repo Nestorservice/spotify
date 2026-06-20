@@ -30,10 +30,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 🔧 Correction manuelle du bug react-native-track-player
-      - name: Apply React Native Track Player fix
-        run: cp fixes/MusicModule.kt node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
-
       - name: Cache Gradle Wrapper
         uses: actions/cache@v4
         with:
