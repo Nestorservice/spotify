@@ -2,61 +2,51 @@ diff --git a/node_modules/react-native-track-player/android/src/main/java/com/do
 index b2409a0..a199767 100644
 --- a/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
 +++ b/node_modules/react-native-track-player/android/src/main/java/com/doublesymmetry/trackplayer/module/MusicModule.kt
-@@ -54,7 +54,8 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+@@ -54,7 +54,7 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJav
              if (!::musicService.isInitialized) {
                  val binder: MusicService.MusicBinder = service as MusicService.MusicBinder
                  musicService = binder.service
 -                musicService.setupPlayer(playerOptions)
-+                // CORRECTION : playerOptions est Bundle?, on fournit un Bundle vide par défaut
 +                musicService.setupPlayer(playerOptions ?: Bundle())
                  playerSetUpPromise?.resolve(null)
              }
  
-@@ -226,7 +227,8 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+@@ -226,7 +226,7 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJav
          }
  
          playerSetUpPromise = promise
 -        playerOptions = bundledData
-+        // CORRECTION : on stocke toujours un Bundle non-nul (vide si bundledData est null)
 +        playerOptions = bundledData ?: Bundle()
  
  
          LocalBroadcastManager.getInstance(context).registerReceiver(
-@@ -291,8 +293,10 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+@@ -291,8 +291,8 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJav
              callback.resolve(null)
              return@launch
          }
 -        val bundle = Arguments.toBundle(data);
 -        if (bundle is Bundle) {
-+        // CORRECTION : utilisation d'une variable locale immuable pour garantir
-+        // un smart-cast fiable de Bundle? vers Bundle (évite le mismatch de type)
 +        val bundle: Bundle? = Arguments.toBundle(data)
 +        if (bundle != null) {
              musicService.load(bundleToTrack(bundle))
              callback.resolve(null)
          } else {
-@@ -340,7 +344,12 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+@@ -340,7 +340,8 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJav
              } else {
                  val context: ReactContext = context
                  val track = musicService.tracks[index]
 -                track.setMetadata(context, Arguments.toBundle(map), musicService.ratingType)
-+                // CORRECTION : on extrait le Bundle de manière sûre
-+                val metadata = Arguments.toBundle(map) ?: return@launch callback.reject(
-+                    "invalid_metadata",
-+                    "Metadata cannot be null"
-+                )
++                val metadata = Arguments.toBundle(map) ?: Bundle()
 +                track.setMetadata(context, metadata, musicService.ratingType)
                  musicService.updateMetadataForTrack(index, track)
  
                  callback.resolve(null)
-@@ -624,6 +633,8 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaM
+@@ -624,6 +625,7 @@ class MusicModule(reactContext: ReactApplicationContext) : ReactContextBaseJav
      @ReactMethod
      fun getPlaybackState(callback: Promise) = scope.launch {
          if (verifyServiceBoundOrReject(callback)) return@launch
 -        callback.resolve(Arguments.fromBundle(musicService.getPlayerStateBundle(musicService.state)))
-+        // CORRECTION : on récupère le Bundle de manière sûre
 +        val stateBundle = musicService.getPlayerStateBundle(musicService.state) ?: Bundle()
 +        callback.resolve(Arguments.fromBundle(stateBundle))
      }
  }
-\ No newline at end of file
