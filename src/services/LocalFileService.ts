@@ -9,26 +9,10 @@ export interface LocalTrack {
   artwork: string;
   duration?: number;
   isLocal: boolean;
+  folder: string;
 }
 
-const FALLBACK_LOCAL_TRACKS: LocalTrack[] = [
-  {
-    id: 'local_1',
-    title: 'Offline Vibe',
-    artist: 'Sauti Local',
-    artwork: 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&h=300&fit=crop',
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Streaming fallback acting as local file
-    isLocal: true,
-  },
-  {
-    id: 'local_2',
-    title: 'Campfire Acoustique',
-    artist: 'Guitare Solitaire',
-    artwork: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop',
-    url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-    isLocal: true,
-  },
-];
+const AUDIO_EXTENSIONS = ['.mp3', '.m4a', '.wav', '.aac', '.ogg', '.flac', '.wma'];
 
 class LocalFileService {
   async requestPermissions(): Promise<boolean> {
@@ -48,61 +32,113 @@ class LocalFileService {
         return granted === PermissionsAndroid.RESULTS.GRANTED;
       }
     } catch (err) {
-      console.warn('Error requesting storage permissions:', err);
+      console.warn('Erreur lors de la demande de permissions :', err);
       return false;
+    }
+  }
+
+  // Recursively scan a directory for audio files
+  private async scanDirectory(path: string, tracks: LocalTrack[], depth: number = 0): Promise<void> {
+    // Limit depth to avoid going too deep into system folders
+    if (depth > 6) return;
+
+    try {
+      const exists = await RNFS.exists(path);
+      if (!exists) return;
+
+      const files = await RNFS.readDir(path);
+
+      for (const file of files) {
+        if (file.isFile()) {
+          const lowerName = file.name.toLowerCase();
+          const isAudio = AUDIO_EXTENSIONS.some(ext => lowerName.endsWith(ext));
+          if (isAudio) {
+            const folderName = path.split('/').pop() || 'Inconnu';
+            tracks.push({
+              id: file.path,
+              title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+              artist: 'Fichier local',
+              artwork: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+              url: `file://${file.path}`,
+              isLocal: true,
+              folder: folderName,
+            });
+          }
+        } else if (file.isDirectory()) {
+          // Skip system / hidden / Android folders
+          const skipDirs = [
+            'Android', '.thumbnails', '.cache', 'cache', 'data',
+            'obb', 'lost+found', '.Trash', 'DCIM', 'Pictures',
+          ];
+          if (!file.name.startsWith('.') && !skipDirs.includes(file.name)) {
+            await this.scanDirectory(file.path, tracks, depth + 1);
+          }
+        }
+      }
+    } catch (error) {
+      // Permission denied or unreadable directory — skip silently
     }
   }
 
   async scanLocalMusic(): Promise<LocalTrack[]> {
     const hasPermission = await this.requestPermissions();
     if (!hasPermission) {
-      console.log('Storage permissions denied, using default offline files.');
-      return FALLBACK_LOCAL_TRACKS;
+      console.log('Permissions de stockage refusées.');
+      return [];
     }
+
+    const tracks: LocalTrack[] = [];
 
     try {
-      const musicDir = `${RNFS.ExternalStorageDirectoryPath}/Music`;
-      const downloadDir = `${RNFS.ExternalStorageDirectoryPath}/Download`;
+      // Primary scan root: external storage
+      const rootPath = RNFS.ExternalStorageDirectoryPath;
+      await this.scanDirectory(rootPath, tracks);
 
-      const tracks: LocalTrack[] = [];
+      // Also scan internal storage paths commonly used
+      const additionalPaths = [
+        `${RNFS.DocumentDirectoryPath}`,
+        '/storage/emulated/0',
+        '/sdcard',
+      ];
 
-      const scanDir = async (path: string) => {
-        const exists = await RNFS.exists(path);
-        if (!exists) return;
-
-        const files = await RNFS.readDir(path);
-        for (const file of files) {
-          if (
-            file.isFile() &&
-            (file.name.endsWith('.mp3') ||
-              file.name.endsWith('.m4a') ||
-              file.name.endsWith('.wav'))
-          ) {
-            tracks.push({
-              id: file.path,
-              title: file.name.replace(/\.[^/.]+$/, ''), // remove extension
-              artist: 'Fichier Local',
-              artwork:
-                'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=300&h=300&fit=crop',
-              url: `file://${file.path}`,
-              isLocal: true,
-            });
-          }
+      for (const p of additionalPaths) {
+        if (p !== rootPath) {
+          await this.scanDirectory(p, tracks);
         }
-      };
-
-      await scanDir(musicDir);
-      await scanDir(downloadDir);
-
-      if (tracks.length === 0) {
-        return FALLBACK_LOCAL_TRACKS;
       }
 
-      return tracks;
+      // Remove duplicates by file path
+      const uniqueMap = new Map<string, LocalTrack>();
+      for (const track of tracks) {
+        uniqueMap.set(track.id, track);
+      }
+
+      return Array.from(uniqueMap.values());
     } catch (error) {
-      console.log('Error scanning directories, using fallback:', error);
-      return FALLBACK_LOCAL_TRACKS;
+      console.log('Erreur lors du scan des fichiers locaux :', error);
+      return [];
     }
+  }
+
+  // Get unique folders that contain audio files
+  async getLocalFolders(): Promise<{ name: string; trackCount: number }[]> {
+    const tracks = await this.scanLocalMusic();
+    const folderMap = new Map<string, number>();
+
+    for (const track of tracks) {
+      folderMap.set(track.folder, (folderMap.get(track.folder) || 0) + 1);
+    }
+
+    return Array.from(folderMap.entries()).map(([name, trackCount]) => ({
+      name,
+      trackCount,
+    }));
+  }
+
+  // Get tracks from a specific folder only
+  async getTracksFromFolder(folderName: string): Promise<LocalTrack[]> {
+    const allTracks = await this.scanLocalMusic();
+    return allTracks.filter(t => t.folder === folderName);
   }
 }
 

@@ -172,9 +172,53 @@ class MusicService {
     }
   }
 
-  // Deezer genre IDs for African genres
+  // Récupérer les paroles d'une chanson via lyrics.ovh (API gratuite)
+  async getLyrics(artist: string, title: string): Promise<string | null> {
+    try {
+      const response = await fetch(
+        `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`
+      );
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.lyrics || null;
+    } catch (error) {
+      console.log('Paroles non trouvées :', error);
+      return null;
+    }
+  }
+
+  // Algorithme de recommandation basé sur l'artiste courant et les termes similaires
+  async getRecommendations(currentTrack: TrackData): Promise<TrackData[]> {
+    try {
+      // Stratégie : chercher des titres similaires basés sur l'artiste actuel
+      const artistResults = await this.searchTracks(currentTrack.artist);
+
+      // Chercher aussi par genre/style similaire basé sur des mots-clés du titre
+      const titleWords = currentTrack.title.split(' ').filter(w => w.length > 3);
+      let relatedResults: TrackData[] = [];
+      if (titleWords.length > 0) {
+        relatedResults = await this.searchTracks(titleWords[0]);
+      }
+
+      // Combiner et retirer les doublons + le titre actuel
+      const combined = [...artistResults, ...relatedResults];
+      const uniqueMap = new Map<string, TrackData>();
+      for (const track of combined) {
+        if (track.id !== currentTrack.id) {
+          uniqueMap.set(track.id, track);
+        }
+      }
+
+      return Array.from(uniqueMap.values()).slice(0, 15);
+    } catch (error) {
+      console.error('Erreur dans les recommandations :', error);
+      return [];
+    }
+  }
+
+  // Identifiants de genres Deezer pour les genres africains
   static GENRE_IDS: Record<string, number> = {
-    Afrobeats: 0, // use global chart as fallback
+    Afrobeats: 0,
     Amapiano: 0,
     Makossa: 0,
     Bikutsi: 0,
@@ -190,3 +234,4 @@ class MusicService {
 }
 
 export const musicService = new MusicService();
+

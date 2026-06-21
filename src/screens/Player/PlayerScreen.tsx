@@ -10,12 +10,15 @@ import {
   Share,
   Modal,
   FlatList,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { THEME } from '../../theme';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { userContentService } from '../../services/UserContentService';
+import { musicService, TrackData } from '../../services/MusicService';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
 const { width } = Dimensions.get('window');
@@ -40,21 +43,30 @@ const PlayerScreen = () => {
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [queueModalVisible, setQueueModalVisible] = useState(false);
+  const [lyricsVisible, setLyricsVisible] = useState(false);
+  const [lyrics, setLyrics] = useState<string | null>(null);
+  const [lyricsLoading, setLyricsLoading] = useState(false);
+  const [recommendations, setRecommendations] = useState<TrackData[]>([]);
 
   useEffect(() => {
-    const checkFavorite = async () => {
+    const init = async () => {
       if (currentTrack) {
+        // Vérifier si le titre est dans les favoris
         try {
           const favorites = await userContentService.getFavorites();
           const isFav = favorites.some((fav: any) => fav.id === currentTrack.id);
           setIsFavorite(isFav);
-        } catch (e) {
-          console.log('Error checking favorites:', e);
-        }
+        } catch (_e) {}
+
+        // Charger les recommandations
+        try {
+          const recs = await musicService.getRecommendations(currentTrack as any);
+          setRecommendations(recs);
+        } catch (_e) {}
       }
     };
-    checkFavorite();
-  }, [currentTrack]);
+    init();
+  }, [currentTrack?.id]);
 
   const handleFavoriteToggle = async () => {
     if (currentTrack) {
@@ -71,10 +83,25 @@ const PlayerScreen = () => {
           title: currentTrack.title,
         });
       } catch (err) {
-        console.error('Error sharing track:', err);
+        console.error('Erreur lors du partage :', err);
       }
     }
   };
+
+  const handleLoadLyrics = async () => {
+    setLyricsVisible(true);
+    if (currentTrack && !lyrics) {
+      setLyricsLoading(true);
+      const result = await musicService.getLyrics(currentTrack.artist, currentTrack.title);
+      setLyrics(result);
+      setLyricsLoading(false);
+    }
+  };
+
+  // Reset lyrics when track changes
+  useEffect(() => {
+    setLyrics(null);
+  }, [currentTrack?.id]);
 
   if (!currentTrack) return null;
 
@@ -92,100 +119,126 @@ const PlayerScreen = () => {
       <BackgroundMotif />
 
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon name="expand-more" size={32} color={THEME.colors.onSurface} />
-          </TouchableOpacity>
-          <View style={styles.headerTitle}>
-            <Text style={styles.nowPlayingLabel}>NOW PLAYING</Text>
-            <Text style={styles.brandLabel}>Sauti Originals</Text>
-          </View>
-          <TouchableOpacity>
-            <Icon name="more-vert" size={28} color={THEME.colors.onSurface} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Album Art */}
-        <View style={styles.artContainer}>
-          <View style={styles.glowEffect} />
-          <Image source={{ uri: currentTrack.artwork }} style={styles.artwork} />
-        </View>
-
-        {/* Song Info */}
-        <View style={styles.infoContainer}>
-          <View style={styles.titleArtist}>
-            <Text style={styles.titleText}>{currentTrack.title}</Text>
-            <Text style={styles.artistText}>{currentTrack.artist}</Text>
-          </View>
-          <TouchableOpacity onPress={handleFavoriteToggle}>
-            <Icon
-              name={isFavorite ? 'favorite' : 'favorite-border'}
-              size={32}
-              color={isFavorite ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Progress Bar */}
-        <View style={styles.progressSection}>
-          <View style={styles.progressBackground}>
-            <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
-          </View>
-          <View style={styles.timeLabels}>
-            <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
-            <Text style={styles.timeText}>{formatTime(duration)}</Text>
-          </View>
-        </View>
-
-        {/* Controls */}
-        <View style={styles.controlsRow}>
-          <TouchableOpacity onPress={() => toggleShuffle()}>
-            <Icon
-              name="shuffle"
-              size={28}
-              color={shuffle ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => playPrevious()}>
-            <Icon name="skip-previous" size={48} color={THEME.colors.onSurface} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.playButton} onPress={() => setIsPlaying(!isPlaying)}>
-            <Icon
-              name={isPlaying ? 'pause' : 'play-arrow'}
-              size={48}
-              color={THEME.colors.onTertiaryFixed}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => playNext()}>
-            <Icon name="skip-next" size={48} color={THEME.colors.onSurface} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => toggleRepeat()}>
-            <Icon
-              name={repeat === 'one' ? 'repeat-one' : 'repeat'}
-              size={28}
-              color={repeat !== 'off' ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <TouchableOpacity style={styles.deviceSelector}>
-            <Icon name="devices" size={20} color={THEME.colors.onSurfaceVariant} />
-            <Text style={styles.deviceText}>Sauti Sync Player</Text>
-          </TouchableOpacity>
-          <View style={styles.footerActions}>
-            <TouchableOpacity style={styles.footerIcon} onPress={handleShareTrack}>
-              <Icon name="share" size={24} color={THEME.colors.onSurfaceVariant} />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* En-tête */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Icon name="expand-more" size={32} color={THEME.colors.onSurface} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.footerIcon} onPress={() => setQueueModalVisible(true)}>
-              <Icon name="playlist-play" size={28} color={THEME.colors.onSurfaceVariant} />
+            <View style={styles.headerTitle}>
+              <Text style={styles.nowPlayingLabel}>EN COURS DE LECTURE</Text>
+              <Text style={styles.brandLabel}>Sauti Originals</Text>
+            </View>
+            <TouchableOpacity onPress={handleLoadLyrics}>
+              <Icon name="lyrics" size={28} color={THEME.colors.onSurface} />
             </TouchableOpacity>
           </View>
-        </View>
 
-        {/* Queue Modal Sheet */}
+          {/* Pochette */}
+          <View style={styles.artContainer}>
+            <View style={styles.glowEffect} />
+            <Image source={{ uri: currentTrack.artwork }} style={styles.artwork} />
+          </View>
+
+          {/* Infos du morceau */}
+          <View style={styles.infoContainer}>
+            <View style={styles.titleArtist}>
+              <Text style={styles.titleText}>{currentTrack.title}</Text>
+              <Text style={styles.artistText}>{currentTrack.artist}</Text>
+            </View>
+            <TouchableOpacity onPress={handleFavoriteToggle}>
+              <Icon
+                name={isFavorite ? 'favorite' : 'favorite-border'}
+                size={32}
+                color={isFavorite ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Barre de progression */}
+          <View style={styles.progressSection}>
+            <View style={styles.progressBackground}>
+              <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
+            </View>
+            <View style={styles.timeLabels}>
+              <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
+              <Text style={styles.timeText}>{formatTime(duration)}</Text>
+            </View>
+          </View>
+
+          {/* Contrôles */}
+          <View style={styles.controlsRow}>
+            <TouchableOpacity onPress={() => toggleShuffle()}>
+              <Icon
+                name="shuffle"
+                size={28}
+                color={shuffle ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => playPrevious()}>
+              <Icon name="skip-previous" size={48} color={THEME.colors.onSurface} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.playButton} onPress={() => setIsPlaying(!isPlaying)}>
+              <Icon
+                name={isPlaying ? 'pause' : 'play-arrow'}
+                size={48}
+                color={THEME.colors.onTertiaryFixed}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => playNext()}>
+              <Icon name="skip-next" size={48} color={THEME.colors.onSurface} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => toggleRepeat()}>
+              <Icon
+                name={repeat === 'one' ? 'repeat-one' : 'repeat'}
+                size={28}
+                color={repeat !== 'off' ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {/* Pied de page */}
+          <View style={styles.footer}>
+            <TouchableOpacity style={styles.deviceSelector}>
+              <Icon name="devices" size={20} color={THEME.colors.onSurfaceVariant} />
+              <Text style={styles.deviceText}>Lecteur Sauti</Text>
+            </TouchableOpacity>
+            <View style={styles.footerActions}>
+              <TouchableOpacity style={styles.footerIcon} onPress={handleShareTrack}>
+                <Icon name="share" size={24} color={THEME.colors.onSurfaceVariant} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.footerIcon} onPress={() => setQueueModalVisible(true)}>
+                <Icon name="playlist-play" size={28} color={THEME.colors.onSurfaceVariant} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Section Recommandations */}
+          {recommendations.length > 0 && (
+            <View style={styles.recsSection}>
+              <Text style={styles.recsTitle}>Recommandé pour vous</Text>
+              <Text style={styles.recsSubtitle}>Basé sur vos écoutes</Text>
+              {recommendations.slice(0, 6).map((track) => (
+                <TouchableOpacity
+                  key={track.id}
+                  style={styles.recItem}
+                  onPress={() => playTrackFromQueue(track, recommendations as any)}
+                >
+                  <Image source={{ uri: track.artwork }} style={styles.recArtwork} />
+                  <View style={styles.recInfo}>
+                    <Text style={styles.recTitle} numberOfLines={1}>{track.title}</Text>
+                    <Text style={styles.recArtist} numberOfLines={1}>{track.artist}</Text>
+                  </View>
+                  <Icon name="play-circle-outline" size={28} color={THEME.colors.primaryFixedDim} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+
+        {/* Modal File d'attente */}
         <Modal
           visible={queueModalVisible}
           animationType="slide"
@@ -233,6 +286,54 @@ const PlayerScreen = () => {
                 }}
                 ListEmptyComponent={<Text style={styles.emptyText}>La file d'attente est vide.</Text>}
               />
+            </View>
+          </SafeAreaView>
+        </Modal>
+
+        {/* Modal Paroles */}
+        <Modal
+          visible={lyricsVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setLyricsVisible(false)}
+        >
+          <SafeAreaView style={styles.lyricsOverlay}>
+            <View style={styles.lyricsContent}>
+              <View style={styles.lyricsHeader}>
+                <View>
+                  <Text style={styles.lyricsHeaderTitle}>Paroles</Text>
+                  <Text style={styles.lyricsTrackName}>{currentTrack.title}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setLyricsVisible(false)}>
+                  <Icon name="close" size={28} color={THEME.colors.onSurface} />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.lyricsScrollContainer}
+              >
+                {lyricsLoading ? (
+                  <ActivityIndicator
+                    size="large"
+                    color={THEME.colors.primaryFixedDim}
+                    style={{ marginTop: 60 }}
+                  />
+                ) : lyrics ? (
+                  lyrics.split('\n').map((line, index) => (
+                    <Text key={index} style={styles.lyricsLine}>
+                      {line || ' '}
+                    </Text>
+                  ))
+                ) : (
+                  <View style={styles.noLyricsContainer}>
+                    <Icon name="music-off" size={48} color={THEME.colors.onSurfaceVariant} />
+                    <Text style={styles.noLyricsText}>
+                      Paroles non disponibles pour ce titre.
+                    </Text>
+                  </View>
+                )}
+              </ScrollView>
             </View>
           </SafeAreaView>
         </Modal>
@@ -376,6 +477,46 @@ const styles = StyleSheet.create({
   footerIcon: {
     padding: 4,
   },
+  // Recommandations
+  recsSection: {
+    marginTop: THEME.spacing.lg,
+    paddingTop: THEME.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  recsTitle: {
+    ...THEME.typography.headlineMd,
+    color: THEME.colors.onSurface,
+    marginBottom: 4,
+  },
+  recsSubtitle: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
+    marginBottom: 16,
+  },
+  recItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    gap: 12,
+  },
+  recArtwork: {
+    width: 44,
+    height: 44,
+    borderRadius: THEME.rounded.default,
+  },
+  recInfo: {
+    flex: 1,
+  },
+  recTitle: {
+    ...THEME.typography.labelLg,
+    color: THEME.colors.onSurface,
+  },
+  recArtist: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
+  },
+  // Modals
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -435,6 +576,54 @@ const styles = StyleSheet.create({
     color: THEME.colors.onSurfaceVariant,
     textAlign: 'center',
     marginTop: 40,
+  },
+  // Paroles
+  lyricsOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+  },
+  lyricsContent: {
+    flex: 1,
+    padding: 20,
+  },
+  lyricsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    paddingBottom: 16,
+  },
+  lyricsHeaderTitle: {
+    ...THEME.typography.headlineMd,
+    color: THEME.colors.primaryFixedDim,
+  },
+  lyricsTrackName: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
+    marginTop: 4,
+  },
+  lyricsScrollContainer: {
+    paddingBottom: 40,
+  },
+  lyricsLine: {
+    ...THEME.typography.bodyLg,
+    color: THEME.colors.onSurface,
+    fontSize: 20,
+    lineHeight: 36,
+    textAlign: 'center',
+    marginVertical: 2,
+  },
+  noLyricsContainer: {
+    alignItems: 'center',
+    paddingTop: 80,
+    gap: 16,
+  },
+  noLyricsText: {
+    ...THEME.typography.bodyLg,
+    color: THEME.colors.onSurfaceVariant,
+    textAlign: 'center',
   },
 });
 

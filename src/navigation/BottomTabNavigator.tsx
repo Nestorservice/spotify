@@ -38,13 +38,13 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ color, size }) => {
             let iconName = 'home';
 
-            if (route.name === 'Home') {
+            if (route.name === 'Accueil') {
               iconName = 'home';
-            } else if (route.name === 'Explore') {
+            } else if (route.name === 'Explorer') {
               iconName = 'explore';
-            } else if (route.name === 'Library') {
+            } else if (route.name === 'Bibliothèque') {
               iconName = 'library-music';
-            } else if (route.name === 'Party') {
+            } else if (route.name === 'Fête') {
               iconName = 'group';
             }
 
@@ -52,10 +52,10 @@ const BottomTabNavigator = () => {
           },
         })}
       >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Explore" component={ExploreScreen} />
-        <Tab.Screen name="Library" component={LibraryScreen} />
-        <Tab.Screen name="Party" component={PartyScreen} />
+        <Tab.Screen name="Accueil" component={HomeScreen} />
+        <Tab.Screen name="Explorer" component={ExploreScreen} />
+        <Tab.Screen name="Bibliothèque" component={LibraryScreen} />
+        <Tab.Screen name="Fête" component={PartyScreen} />
       </Tab.Navigator>
       <MiniPlayer />
     </View>

@@ -13,44 +13,67 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {THEME} from '../../theme';
 import {musicService, TrackData, ArtistData, PlaylistData} from '../../services/MusicService';
-import {localFileService} from '../../services/LocalFileService';
+import {localFileService, LocalTrack} from '../../services/LocalFileService';
+import {userContentService} from '../../services/UserContentService';
 import {usePlayerStore} from '../../store/usePlayerStore';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
-type FilterType = 'Tracks' | 'Artists' | 'Playlists' | 'Local';
+type FilterType = 'Titres' | 'Artistes' | 'Playlists' | 'Favoris' | 'Local' | 'Dossiers';
 
 const LibraryScreen = () => {
-  const [activeFilter, setActiveFilter] = useState<FilterType>('Tracks');
+  const [activeFilter, setActiveFilter] = useState<FilterType>('Titres');
   const [tracks, setTracks] = useState<TrackData[]>([]);
   const [artists, setArtists] = useState<ArtistData[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistData[]>([]);
   const [localTracks, setLocalTracks] = useState<TrackData[]>([]);
+  const [favorites, setFavorites] = useState<TrackData[]>([]);
+  const [folders, setFolders] = useState<{name: string; trackCount: number}[]>([]);
+  const [folderTracks, setFolderTracks] = useState<TrackData[]>([]);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const {setCurrentTrack, setIsPlaying, playTrackFromQueue} = usePlayerStore();
 
-  const filters: FilterType[] = ['Tracks', 'Artists', 'Playlists', 'Local'];
+  const filters: FilterType[] = ['Titres', 'Artistes', 'Playlists', 'Favoris', 'Local', 'Dossiers'];
 
   useEffect(() => {
     loadData();
   }, []);
 
+  // Reload favorites when switching to the Favoris tab
+  useEffect(() => {
+    if (activeFilter === 'Favoris') {
+      loadFavorites();
+    }
+  }, [activeFilter]);
+
   const loadData = async () => {
     setLoading(true);
     try {
-      const [t, a, p, l] = await Promise.all([
+      const [t, a, p, l, fav, f] = await Promise.all([
         musicService.getTrendingTracks(),
         musicService.getTopArtists(),
         musicService.getTopPlaylists(),
         localFileService.scanLocalMusic(),
+        userContentService.getFavorites(),
+        localFileService.getLocalFolders(),
       ]);
       setTracks(t);
       setArtists(a);
       setPlaylists(p);
       setLocalTracks(l as any);
+      setFavorites(fav);
+      setFolders(f);
     } catch (error) {
-      console.error('Error loading library data:', error);
+      console.error('Erreur lors du chargement de la bibliothèque :', error);
     }
     setLoading(false);
+  };
+
+  const loadFavorites = async () => {
+    try {
+      const fav = await userContentService.getFavorites();
+      setFavorites(fav);
+    } catch (_e) {}
   };
 
   const handlePlayTrack = (track: TrackData, queue: TrackData[] = [track]) => {
@@ -61,7 +84,7 @@ const LibraryScreen = () => {
     setLoading(true);
     const artistTracks = await musicService.getArtistTracks(artist.id);
     setTracks(artistTracks);
-    setActiveFilter('Tracks');
+    setActiveFilter('Titres');
     setLoading(false);
   };
 
@@ -69,14 +92,38 @@ const LibraryScreen = () => {
     setLoading(true);
     const playlistTracks = await musicService.getPlaylistTracks(playlist.id);
     setTracks(playlistTracks);
-    setActiveFilter('Tracks');
+    setActiveFilter('Titres');
     setLoading(false);
+  };
+
+  const handleFolderPress = async (folderName: string) => {
+    setLoading(true);
+    setSelectedFolder(folderName);
+    const fTracks = await localFileService.getTracksFromFolder(folderName);
+    setFolderTracks(fTracks as any);
+    setLoading(false);
+  };
+
+  const getCurrentQueue = (): TrackData[] => {
+    switch (activeFilter) {
+      case 'Local':
+        return localTracks;
+      case 'Favoris':
+        return favorites;
+      case 'Dossiers':
+        return folderTracks;
+      default:
+        return tracks;
+    }
   };
 
   const renderFilter = (filter: FilterType) => (
     <TouchableOpacity
       key={filter}
-      onPress={() => setActiveFilter(filter)}
+      onPress={() => {
+        setActiveFilter(filter);
+        setSelectedFolder(null);
+      }}
       style={[
         styles.filterChip,
         activeFilter === filter && styles.activeFilterChip,
@@ -94,7 +141,7 @@ const LibraryScreen = () => {
   const renderTrackItem = ({item}: {item: TrackData}) => (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={() => handlePlayTrack(item, activeFilter === 'Local' ? localTracks : tracks)}>
+      onPress={() => handlePlayTrack(item, getCurrentQueue())}>
       <Image source={{uri: item.artwork}} style={styles.itemImage} />
       <View style={styles.itemInfo}>
         <Text style={styles.itemTitle} numberOfLines={1}>
@@ -104,7 +151,7 @@ const LibraryScreen = () => {
           {item.artist}
         </Text>
       </View>
-      <TouchableOpacity onPress={() => handlePlayTrack(item, activeFilter === 'Local' ? localTracks : tracks)}>
+      <TouchableOpacity onPress={() => handlePlayTrack(item, getCurrentQueue())}>
         <Icon
           name="play-circle-outline"
           size={28}
@@ -118,15 +165,13 @@ const LibraryScreen = () => {
     <TouchableOpacity
       style={styles.itemContainer}
       onPress={() => handleArtistPress(item)}>
-      <Image source={{uri: item.picture}} style={styles.roundedImage} />
+      <Image source={{uri: item.picture}} style={styles.artistImage} />
       <View style={styles.itemInfo}>
         <Text style={styles.itemTitle} numberOfLines={1}>
           {item.name}
         </Text>
         <Text style={styles.itemSubtitle}>
-          {item.fans
-            ? `${(item.fans / 1000000).toFixed(1)}M fans`
-            : 'Artiste'}
+          {item.fans ? `${(item.fans / 1000).toFixed(0)}K fans` : 'Artiste'}
         </Text>
       </View>
       <Icon name="chevron-right" size={24} color={THEME.colors.onSurfaceVariant} />
@@ -150,6 +195,25 @@ const LibraryScreen = () => {
     </TouchableOpacity>
   );
 
+  const renderFolderItem = ({item}: {item: {name: string; trackCount: number}}) => (
+    <TouchableOpacity
+      style={styles.folderContainer}
+      onPress={() => handleFolderPress(item.name)}>
+      <View style={styles.folderIcon}>
+        <Icon name="folder" size={32} color={THEME.colors.primaryFixedDim} />
+      </View>
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemTitle} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <Text style={styles.itemSubtitle}>
+          {item.trackCount} fichier{item.trackCount > 1 ? 's' : ''} audio
+        </Text>
+      </View>
+      <Icon name="chevron-right" size={24} color={THEME.colors.onSurfaceVariant} />
+    </TouchableOpacity>
+  );
+
   const renderContent = () => {
     if (loading) {
       return (
@@ -162,22 +226,24 @@ const LibraryScreen = () => {
     }
 
     switch (activeFilter) {
-      case 'Tracks':
+      case 'Titres':
         return (
           <FlatList
             data={tracks}
             renderItem={renderTrackItem}
             keyExtractor={item => item.id}
             scrollEnabled={false}
+            ListEmptyComponent={<Text style={styles.emptyText}>Aucun titre trouvé.</Text>}
           />
         );
-      case 'Artists':
+      case 'Artistes':
         return (
           <FlatList
             data={artists}
             renderItem={renderArtistItem}
             keyExtractor={item => item.id}
             scrollEnabled={false}
+            ListEmptyComponent={<Text style={styles.emptyText}>Aucun artiste trouvé.</Text>}
           />
         );
       case 'Playlists':
@@ -187,6 +253,25 @@ const LibraryScreen = () => {
             renderItem={renderPlaylistItem}
             keyExtractor={item => item.id}
             scrollEnabled={false}
+            ListEmptyComponent={<Text style={styles.emptyText}>Aucune playlist trouvée.</Text>}
+          />
+        );
+      case 'Favoris':
+        return (
+          <FlatList
+            data={favorites}
+            renderItem={renderTrackItem}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Icon name="favorite-border" size={48} color={THEME.colors.onSurfaceVariant} />
+                <Text style={styles.emptyText}>Aucun favori pour le moment.</Text>
+                <Text style={styles.emptyHint}>
+                  Appuyez sur le cœur pour ajouter des titres à vos favoris.
+                </Text>
+              </View>
+            }
           />
         );
       case 'Local':
@@ -196,6 +281,50 @@ const LibraryScreen = () => {
             renderItem={renderTrackItem}
             keyExtractor={item => item.id}
             scrollEnabled={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Icon name="music-off" size={48} color={THEME.colors.onSurfaceVariant} />
+                <Text style={styles.emptyText}>Aucune musique trouvée sur cet appareil.</Text>
+                <Text style={styles.emptyHint}>
+                  Ajoutez des fichiers MP3 dans le stockage de votre téléphone.
+                </Text>
+              </View>
+            }
+          />
+        );
+      case 'Dossiers':
+        if (selectedFolder) {
+          return (
+            <View>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setSelectedFolder(null)}>
+                <Icon name="arrow-back" size={24} color={THEME.colors.primaryFixedDim} />
+                <Text style={styles.backButtonText}>Retour aux dossiers</Text>
+              </TouchableOpacity>
+              <Text style={styles.folderTitle}>{selectedFolder}</Text>
+              <FlatList
+                data={folderTracks}
+                renderItem={renderTrackItem}
+                keyExtractor={item => item.id}
+                scrollEnabled={false}
+                ListEmptyComponent={<Text style={styles.emptyText}>Aucun fichier audio dans ce dossier.</Text>}
+              />
+            </View>
+          );
+        }
+        return (
+          <FlatList
+            data={folders}
+            renderItem={renderFolderItem}
+            keyExtractor={item => item.name}
+            scrollEnabled={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Icon name="folder-off" size={48} color={THEME.colors.onSurfaceVariant} />
+                <Text style={styles.emptyText}>Aucun dossier audio trouvé.</Text>
+              </View>
+            }
           />
         );
     }
@@ -205,25 +334,27 @@ const LibraryScreen = () => {
     <View style={styles.container}>
       <BackgroundMotif />
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.brandTitle}>Bibliothèque</Text>
-        </View>
-
         <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}>
-          {/* Filters */}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          {/* En-tête */}
+          <View style={styles.header}>
+            <Text style={styles.pageTitle}>Bibliothèque</Text>
+            <TouchableOpacity>
+              <Icon name="search" size={28} color={THEME.colors.onSurface} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Filtres */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.filtersRow}>
+            contentContainerStyle={styles.filterRow}>
             {filters.map(renderFilter)}
           </ScrollView>
 
-          {/* Content */}
-          <View style={styles.listContainer}>{renderContent()}</View>
-
+          {/* Contenu */}
+          <View style={styles.contentContainer}>{renderContent()}</View>
           <View style={{height: 120}} />
         </ScrollView>
       </SafeAreaView>
@@ -239,77 +370,126 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  scrollContent: {
+    paddingTop: 8,
+  },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: THEME.spacing.marginMobile,
     paddingVertical: THEME.spacing.md,
   },
-  brandTitle: {
+  pageTitle: {
     ...THEME.typography.displayLg,
-    fontSize: 32,
-    color: THEME.colors.primaryFixedDim,
-    letterSpacing: -1,
+    fontSize: 28,
+    color: THEME.colors.onSurface,
   },
-  scrollContent: {
-    paddingTop: THEME.spacing.sm,
-  },
-  filtersRow: {
-    paddingLeft: THEME.spacing.marginMobile,
-    marginBottom: THEME.spacing.lg,
+  filterRow: {
+    flexDirection: 'row',
+    paddingHorizontal: THEME.spacing.marginMobile,
+    paddingBottom: THEME.spacing.md,
+    gap: 10,
   },
   filterChip: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: 'rgba(132, 149, 132, 0.3)',
-    marginRight: 12,
+    backgroundColor: THEME.colors.surfaceContainerHigh,
   },
   activeFilterChip: {
-    borderColor: THEME.colors.primaryFixed,
-    backgroundColor: 'rgba(0, 228, 118, 0.1)',
+    backgroundColor: THEME.colors.primaryFixed,
   },
   filterText: {
-    ...THEME.typography.labelLg,
+    ...THEME.typography.labelSm,
     color: THEME.colors.onSurfaceVariant,
   },
   activeFilterText: {
-    color: THEME.colors.primaryFixed,
+    color: THEME.colors.onPrimaryFixed,
+    fontWeight: 'bold',
   },
-  listContainer: {
+  contentContainer: {
     paddingHorizontal: THEME.spacing.marginMobile,
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    gap: 14,
+    padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.04)',
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    gap: 12,
   },
   itemImage: {
-    width: 56,
-    height: 56,
+    width: 48,
+    height: 48,
     borderRadius: THEME.rounded.default,
-    backgroundColor: THEME.colors.surfaceContainer,
   },
-  roundedImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: THEME.colors.surfaceContainer,
+  artistImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
   itemInfo: {
     flex: 1,
   },
   itemTitle: {
-    ...THEME.typography.bodyLg,
-    fontWeight: '600',
+    ...THEME.typography.labelLg,
     color: THEME.colors.onSurface,
   },
   itemSubtitle: {
     ...THEME.typography.labelSm,
     color: THEME.colors.onSurfaceVariant,
     marginTop: 2,
+  },
+  folderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    gap: 16,
+  },
+  folderIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: THEME.rounded.default,
+    backgroundColor: 'rgba(0, 228, 118, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  folderTitle: {
+    ...THEME.typography.headlineMd,
+    color: THEME.colors.primaryFixedDim,
+    paddingHorizontal: THEME.spacing.marginMobile,
+    marginBottom: 12,
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+  },
+  backButtonText: {
+    ...THEME.typography.labelLg,
+    color: THEME.colors.primaryFixedDim,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingTop: 60,
+    gap: 12,
+  },
+  emptyText: {
+    ...THEME.typography.bodyLg,
+    color: THEME.colors.onSurfaceVariant,
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  emptyHint: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
+    textAlign: 'center',
+    paddingHorizontal: 40,
   },
 });
 

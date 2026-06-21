@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
   TouchableOpacity,
-  Dimensions,
+  Animated,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
@@ -13,21 +13,28 @@ import { THEME } from '../../theme';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { userContentService } from '../../services/UserContentService';
 
-const { width } = Dimensions.get('window');
-
 const MiniPlayer = () => {
   const navigation = useNavigation<any>();
   const {
     currentTrack,
     isPlaying,
     setIsPlaying,
-    setCurrentTrack,
     currentTime,
     duration,
   } = usePlayerStore();
 
   const [isFavorite, setIsFavorite] = useState(false);
-  const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+  const [dismissed, setDismissed] = useState(false);
+  const touchStartRef = useRef({ x: 0, y: 0 });
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  // Reset dismissed state when a new track starts
+  useEffect(() => {
+    if (currentTrack) {
+      setDismissed(false);
+      Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
+    }
+  }, [currentTrack?.id]);
 
   useEffect(() => {
     const checkFavorite = async () => {
@@ -36,15 +43,15 @@ const MiniPlayer = () => {
           const favorites = await userContentService.getFavorites();
           const isFav = favorites.some((fav: any) => fav.id === currentTrack.id);
           setIsFavorite(isFav);
-        } catch (e) {
-          console.log('Error checking favorites:', e);
+        } catch (_e) {
+          // silent
         }
       }
     };
     checkFavorite();
   }, [currentTrack]);
 
-  if (!currentTrack) return null;
+  if (!currentTrack || dismissed) return null;
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
@@ -56,28 +63,30 @@ const MiniPlayer = () => {
   };
 
   const handleTouchStart = (e: any) => {
-    setTouchStart({
+    touchStartRef.current = {
       x: e.nativeEvent.pageX,
       y: e.nativeEvent.pageY,
-    });
+    };
   };
 
   const handleTouchEnd = (e: any) => {
-    const endX = e.nativeEvent.pageX;
-    const endY = e.nativeEvent.pageY;
-    const diffX = endX - touchStart.x;
-    const diffY = endY - touchStart.y;
+    const diffX = e.nativeEvent.pageX - touchStartRef.current.x;
+    const diffY = e.nativeEvent.pageY - touchStartRef.current.y;
 
-    // Swipe down or swipe horizontally to dismiss/close the player
-    if (diffY > 50 || Math.abs(diffX) > 80) {
+    // Swipe down to dismiss mini player (just hide it, don't nullify currentTrack)
+    if (diffY > 60 || Math.abs(diffX) > 100) {
       setIsPlaying(false);
-      setCurrentTrack(null);
+      Animated.timing(translateY, {
+        toValue: 200,
+        duration: 250,
+        useNativeDriver: true,
+      }).start(() => setDismissed(true));
     }
   };
 
   return (
-    <View
-      style={styles.container}
+    <Animated.View
+      style={[styles.container, { transform: [{ translateY }] }]}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
@@ -116,19 +125,19 @@ const MiniPlayer = () => {
           </View>
         </View>
 
-        {/* Progress Bar */}
+        {/* Barre de progression */}
         <View style={styles.progressContainer}>
           <View style={[styles.progressBar, { width: `${progressPercent}%` }]} />
         </View>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 90, // Just above the bottom tab bar
+    bottom: 90,
     left: THEME.spacing.marginMobile,
     right: THEME.spacing.marginMobile,
     backgroundColor: 'rgba(32, 31, 31, 0.95)',

@@ -30,10 +30,10 @@ const GENRES = [
 ];
 
 const MOODS = [
-  {title: 'Chill', icon: 'flare', keyword: 'chill african'},
-  {title: 'Workout', icon: 'fitness-center', keyword: 'workout afro'},
-  {title: 'Focus', icon: 'self-improvement', keyword: 'focus music'},
-  {title: 'Party', icon: 'celebration', keyword: 'afro party'},
+  {title: 'Détente', icon: 'flare', keyword: 'chill african'},
+  {title: 'Entraînement', icon: 'fitness-center', keyword: 'workout afro'},
+  {title: 'Concentration', icon: 'self-improvement', keyword: 'focus music'},
+  {title: 'Fête', icon: 'celebration', keyword: 'afro party'},
 ];
 
 const ExploreScreen = () => {
