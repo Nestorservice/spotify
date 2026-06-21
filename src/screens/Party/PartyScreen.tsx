@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,71 +8,126 @@ import {
   TouchableOpacity,
   SafeAreaView,
   FlatList,
+  TextInput,
+  ActivityIndicator,
+  Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { THEME } from '../../theme';
-import { usePartyStore } from '../../store/usePartyStore';
+import { usePartyStore, Participant } from '../../store/usePartyStore';
 import { usePlayerStore } from '../../store/usePlayerStore';
-import { musicService } from '../../services/MusicService';
+import { musicService, TrackData } from '../../services/MusicService';
 import RadarAnimation from '../../components/party/RadarAnimation';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
 const PartyScreen = () => {
-  const { 
-    currentSession, 
-    collaborativeQueue, 
-    isSearching, 
-    discoveredSessions,
-    setIsSearching 
+  const {
+    currentSession,
+    isSearching,
+    supabaseConnected,
+    createSession,
+    joinSession,
+    leaveSession,
+    shareSession,
+    requestAddTrack,
   } = usePartyStore();
 
-  const { 
-    currentTrack, 
-    queue, 
-    playTrackFromQueue, 
-    currentTime, 
-    duration, 
-    setQueue 
+  const {
+    currentTrack,
+    queue,
+    playTrackFromQueue,
+    currentTime,
+    duration,
   } = usePlayerStore();
 
-  useEffect(() => {
-    setIsSearching(true);
-    if (queue.length === 0) {
-      musicService.getTrendingTracks().then(tracks => {
-        setQueue(tracks as any);
-      });
-    }
-  }, []);
+  // Local state for forms
+  const [roomName, setRoomName] = useState('La Fête Sauti');
+  const [joinCode, setJoinCode] = useState('');
+  const [nickname, setNickname] = useState('Mélomane');
 
-  const renderParticipant = ({ item }: { item: any }) => (
+  // Search Modal state
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<TrackData[]>([]);
+  const [searchingTracks, setSearchingTracks] = useState(false);
+
+  const handleCreate = async () => {
+    const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop';
+    await createSession(roomName, nickname, avatar);
+  };
+
+  const handleJoin = async () => {
+    if (!joinCode) return;
+    const avatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop';
+    await joinSession(joinCode.toUpperCase().trim(), nickname, avatar);
+  };
+
+  const handleSearch = async (text: string) => {
+    setSearchQuery(text);
+    if (text.length > 2) {
+      setSearchingTracks(true);
+      try {
+        const results = await musicService.searchTracks(text);
+        setSearchResults(results);
+      } catch (err) {
+        console.error('Error searching tracks:', err);
+      }
+      setSearchingTracks(false);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  const handleAddTrack = (track: TrackData) => {
+    if (currentSession?.role === 'host') {
+      // Host adds directly
+      usePlayerStore.getState().addToQueue(track);
+    } else if (currentSession?.role === 'guest') {
+      // Guest requests addition
+      const avatar = 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop';
+      requestAddTrack(track, nickname, avatar);
+    }
+    setSearchVisible(false);
+    setSearchQuery('');
+    setSearchResults([]);
+  };
+
+  const renderParticipant = ({ item }: { item: Participant }) => (
     <View style={styles.participantContainer}>
       <View style={[styles.avatarBorder, item.isHost && styles.hostBorder]}>
         <Image source={{ uri: item.avatar }} style={styles.avatar} />
         {item.isActive && <View style={styles.activeDot} />}
       </View>
-      <Text style={styles.participantName} numberOfLines={1}>{item.name}</Text>
+      <Text style={styles.participantName} numberOfLines={1}>
+        {item.name} {item.isHost && '(Hôte)'}
+      </Text>
     </View>
   );
 
   const renderQueueItem = ({ item, index }: { item: any; index: number }) => {
     const isCurrent = item.id === currentTrack?.id;
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.queueItem, isCurrent && styles.nowPlayingItem]}
         onPress={() => playTrackFromQueue(item, queue as any)}
       >
         <Image source={{ uri: item.artwork }} style={styles.queueArtwork} />
         <View style={styles.queueInfo}>
-          <Text style={[styles.queueTitle, isCurrent && styles.primaryText]} numberOfLines={1}>{item.title}</Text>
-          <Text style={styles.queueArtist} numberOfLines={1}>{item.artist}</Text>
-        </View>
-        <View style={styles.addedBy}>
-          <Image source={{ uri: MOCK_PARTICIPANTS[index % MOCK_PARTICIPANTS.length].avatar }} style={styles.addedByAvatar} />
-          {isCurrent && <Text style={styles.hostLabel}>Active</Text>}
+          <Text style={[styles.queueTitle, isCurrent && styles.primaryText]} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={styles.queueArtist} numberOfLines={1}>
+            {item.artist}
+          </Text>
         </View>
         {isCurrent && (
           <View style={styles.playbackProgress}>
-            <View style={[styles.progressFill, { width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }]} />
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` },
+              ]}
+            />
           </View>
         )}
       </TouchableOpacity>
@@ -82,101 +137,237 @@ const PartyScreen = () => {
   return (
     <View style={styles.container}>
       <BackgroundMotif />
-      
       <SafeAreaView style={styles.safeArea}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.iconCircle}>
-              <Icon name="cell-tower" size={24} color={THEME.colors.primaryFixedDim} />
+        {/* Onboarding View (No Active Room) */}
+        {!currentSession ? (
+          <ScrollView
+            contentContainerStyle={styles.onboardingContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.heroSection}>
+              <Icon name="cell-tower" size={64} color={THEME.colors.primaryFixed} />
+              <Text style={styles.heroTitle}>Mode Fête (Session)</Text>
+              <Text style={styles.heroDescription}>
+                Écoutez de la musique ensemble en temps réel. Partagez le contrôle de la file d'attente avec vos amis.
+              </Text>
             </View>
-            <Text style={styles.headerTitle}>Session Locale Active</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity>
-              <Icon name="settings" size={24} color={THEME.colors.onSurfaceVariant} />
-            </TouchableOpacity>
-            <View style={styles.smallProfile}>
-              <Image 
-                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAM4-yMLaTqv9lrCkbyhQk0vOL-q_Kbhkh_fZHeIZoQDUTNqg-ffXeSJgWr797WDIpFhuY-3FvK0IfozpfcEVuDTTIcOv41EfUnmagapH7wHehahlk634KuR2J7hsOXVd84n3LWy6XBuuYrl6dYcPJwvg4ZoCFaq_iErgIALWswQO-c6wLIsssxiDv7QChDFMynCKXUwvZG8ixJGH3ciE_Mmo-jDfcp8gYDT0JS9WpSgni7k3MuLaiGF9kmjk7puy1DdaYgRJ_YimSU' }} 
-                style={styles.fullImage} 
+
+            {/* Warning Banner if Supabase not configured */}
+            {!supabaseConnected && (
+              <View style={styles.warningBanner}>
+                <Icon name="warning" size={20} color="#ffb4a4" />
+                <Text style={styles.warningText}>
+                  Mode démo locale actif. Configurez les clés Supabase dans SupabaseService.ts pour la synchronisation réelle.
+                </Text>
+              </View>
+            )}
+
+            {/* Setup Form */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Votre Pseudo</Text>
+              <TextInput
+                style={styles.textInput}
+                value={nickname}
+                onChangeText={setNickname}
+                placeholder="Votre nom"
+                placeholderTextColor={THEME.colors.onSurfaceVariant}
               />
             </View>
-          </View>
-        </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Radar Section */}
-          <View style={styles.radarSection}>
-            <RadarAnimation />
-            <View style={styles.radarCenter}>
-              <View style={styles.hubIcon}>
-                <Icon name="hub" size={40} color={THEME.colors.primaryFixed} />
+            {/* Host Section */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Créer une Session Fête</Text>
+              <TextInput
+                style={styles.textInput}
+                value={roomName}
+                onChangeText={setRoomName}
+                placeholder="Nom du salon"
+                placeholderTextColor={THEME.colors.onSurfaceVariant}
+              />
+              <TouchableOpacity style={styles.primaryButton} onPress={handleCreate}>
+                <Text style={styles.primaryButtonText}>Lancer la fête</Text>
+                <Icon name="chevron-right" size={20} color={THEME.colors.onPrimaryFixed} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Join Section */}
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Rejoindre une Session</Text>
+              <TextInput
+                style={styles.textInput}
+                value={joinCode}
+                onChangeText={setJoinCode}
+                placeholder="Code de session (Ex: AB12CD)"
+                placeholderTextColor={THEME.colors.onSurfaceVariant}
+                autoCapitalize="characters"
+              />
+              <TouchableOpacity style={styles.secondaryButton} onPress={handleJoin}>
+                <Text style={styles.secondaryButtonText}>Rejoindre</Text>
+                <Icon name="login" size={20} color={THEME.colors.primaryFixed} />
+              </TouchableOpacity>
+            </View>
+
+            {isSearching && (
+              <ActivityIndicator
+                size="large"
+                color={THEME.colors.primaryFixed}
+                style={{ marginTop: 20 }}
+              />
+            )}
+          </ScrollView>
+        ) : (
+          /* Active Session View */
+          <View style={{ flex: 1 }}>
+            {/* Header */}
+            <View style={styles.header}>
+              <View style={styles.headerLeft}>
+                <View style={styles.iconCircle}>
+                  <Icon name="cell-tower" size={24} color={THEME.colors.primaryFixedDim} />
+                </View>
+                <View>
+                  <Text style={styles.headerTitle} numberOfLines={1}>
+                    {currentSession.name}
+                  </Text>
+                  <Text style={styles.headerSubtitle}>
+                    CODE : {currentSession.code}
+                  </Text>
+                </View>
               </View>
-              <Text style={styles.radarLabel}>SCANNING FOR PEERS</Text>
-            </View>
-          </View>
-
-          {/* Participants */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Nearby Listening</Text>
-              <Text style={styles.participantCount}>5 Connected</Text>
-            </View>
-            <FlatList
-              data={MOCK_PARTICIPANTS}
-              renderItem={renderParticipant}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.participantsList}
-              ListFooterComponent={
-                <TouchableOpacity style={styles.addParticipant}>
-                  <View style={styles.addIconCircle}>
-                    <Icon name="person-add" size={24} color={THEME.colors.onSurfaceVariant} />
-                  </View>
-                  <Text style={styles.addLabel}>Invite</Text>
+              <View style={styles.headerRight}>
+                <TouchableOpacity onPress={shareSession} style={styles.headerIconButton}>
+                  <Icon name="share" size={24} color={THEME.colors.primaryFixed} />
                 </TouchableOpacity>
-              }
-            />
-          </View>
-
-          {/* Shared Queue */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Shared Queue</Text>
-            <View style={styles.queueContainer}>
-              {queue.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  {renderQueueItem({ item, index })}
-                </React.Fragment>
-              ))}
+                <TouchableOpacity onPress={leaveSession} style={styles.headerIconButton}>
+                  <Icon name="exit-to-app" size={24} color="#ffb4a4" />
+                </TouchableOpacity>
+              </View>
             </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* Radar Simulation */}
+              <View style={styles.radarSection}>
+                <RadarAnimation />
+                <View style={styles.radarCenter}>
+                  <View style={styles.hubIcon}>
+                    <Icon name="hub" size={40} color={THEME.colors.primaryFixed} />
+                  </View>
+                  <Text style={styles.radarLabel}>SESSION REALTIME SYNCED</Text>
+                </View>
+              </View>
+
+              {/* Participants */}
+              <View style={styles.section}>
+                <View style={styles.sectionHeader}>
+                  <Text style={styles.sectionTitle}>Membres connectés</Text>
+                  <Text style={styles.participantCount}>
+                    {currentSession.participants.length} en ligne
+                  </Text>
+                </View>
+                <FlatList
+                  data={currentSession.participants}
+                  renderItem={renderParticipant}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.participantsList}
+                />
+              </View>
+
+              {/* Shared Queue */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>File d'attente partagée</Text>
+                <View style={styles.queueContainer}>
+                  {queue.length === 0 ? (
+                    <Text style={styles.emptyText}>Aucune musique dans la file d'attente.</Text>
+                  ) : (
+                    queue.map((item, index) => (
+                      <React.Fragment key={item.id || index}>
+                        {renderQueueItem({ item, index })}
+                      </React.Fragment>
+                    ))
+                  )}
+                </View>
+              </View>
+
+              <View style={{ height: 120 }} />
+            </ScrollView>
+
+            {/* FAB to Add Track */}
+            <TouchableOpacity style={styles.fab} onPress={() => setSearchVisible(true)}>
+              <Icon name="add" size={32} color={THEME.colors.onPrimaryFixed} />
+            </TouchableOpacity>
           </View>
+        )}
 
-          <View style={{ height: 120 }} />
-        </ScrollView>
+        {/* Add Track Search Modal */}
+        <Modal
+          visible={searchVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setSearchVisible(false)}
+        >
+          <SafeAreaView style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setSearchVisible(false)}>
+                <Icon name="close" size={28} color={THEME.colors.onSurface} />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>Ajouter à la fête</Text>
+              <View style={{ width: 28 }} />
+            </View>
 
-        {/* FAB */}
-        <TouchableOpacity style={styles.fab}>
-          <Icon name="add" size={32} color={THEME.colors.onPrimaryFixed} />
-        </TouchableOpacity>
+            <View style={styles.modalSearchRow}>
+              <Icon name="search" size={24} color={THEME.colors.onSurfaceVariant} />
+              <TextInput
+                style={styles.modalSearchInput}
+                value={searchQuery}
+                onChangeText={handleSearch}
+                placeholder="Rechercher une musique, un artiste..."
+                placeholderTextColor={THEME.colors.onSurfaceVariant}
+                autoFocus
+              />
+            </View>
+
+            {searchingTracks ? (
+              <ActivityIndicator
+                size="large"
+                color={THEME.colors.primaryFixed}
+                style={{ marginTop: 40 }}
+              />
+            ) : (
+              <FlatList
+                data={searchResults}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.modalResultsList}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.modalResultItem}
+                    onPress={() => handleAddTrack(item)}
+                  >
+                    <Image source={{ uri: item.artwork }} style={styles.modalResultArtwork} />
+                    <View style={styles.modalResultInfo}>
+                      <Text style={styles.modalResultTitle} numberOfLines={1}>
+                        {item.title}
+                      </Text>
+                      <Text style={styles.modalResultArtist} numberOfLines={1}>
+                        {item.artist}
+                      </Text>
+                    </View>
+                    <Icon name="add-circle-outline" size={28} color={THEME.colors.primaryFixedDim} />
+                  </TouchableOpacity>
+                )}
+                ListEmptyComponent={
+                  searchQuery.length > 2 ? (
+                    <Text style={styles.emptyText}>Aucun résultat trouvé.</Text>
+                  ) : null
+                }
+              />
+            )}
+          </SafeAreaView>
+        </Modal>
       </SafeAreaView>
     </View>
   );
 };
-
-const MOCK_PARTICIPANTS = [
-  { id: '1', name: 'Amara', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC-paOgR_mLvdMuwr87T_mCDeAW-3TysfPA0op-kjEUNGbn0ryGVpHQdy-TMkkLj-1GrbGKKZ2pu4pHWjdd0j_MI07ZCicyJRGlTG6cZivekfP-XqmXVzoZtlMM6pUE22SwoYroc6Sp5ti6yeBI78suqf6owmiapicTTWZz6Z8keX7DOhYxhZrJQedbtw5FGx-uX8WPKTPGT9VsVqn8Odljo-lB_lJ1ofmEWpDWPdGn7pW0MkbFxqIj0sr6vnbU3JxIlQ0y1V7g1qkP', isHost: true, isActive: true },
-  { id: '2', name: 'Kofi', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBj1x7fSWGin9oFjm-tbGfTVQZSiRAqYBt5HjOGsGyDoPJa4XByQK_x6rTTmcvt0fOlwS63_BpLSJNq3oVmfudnYY9icug8SPM-fVMzrJz7N45fa3ESFBP4l0Yr5ygK9puyvg48xRTdNNtmO4OxYqujUrpx5LEYawl-bNWMWWyHrfPoyA7jO8htR3jEqz8BXyvSMM1O9WzX1gsvBU5vrujSwK3j7Kgef00ALgd4TaEe_rigbdEVI8n5ILuQS2usl8fMSBveoxQBV1t9' },
-  { id: '3', name: 'Zanele', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAxTPPZlzrjsMwmX3T_6S4FH2K1_qwotAuoxMADNpVCofbsU9AkvVkDYTmHLCwFKM29bFFLP2Fwaqn9plkWMMx3qbwW7UPoY2tDDU5x5OaPA2XSHjzTeIjabx0yFgVDJn-Yt-rwWFS_v_zzD8qOIZIgEhX_2M_BdiEzh1245W26EL0p4oD7AxijsaGEV-AtxrusC6aj2mvNCOkfEEMBCoKv3aKye2hB6-kYEG0TwqyXftiQlYK8ibePcSovXfh8_Vkzyk1Ye0TxAp4r' },
-  { id: '4', name: 'Jabari', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB9h6k1ylkNRKVSnswtS77hpUJLjc315E3MUiIBnL6QVSQir-ccpcceqo97vtLtnGremSnlo4e6X14Iv-sLil7q_mana1kQYdEcfCmlirRoP8xbJfnK-xdefpE9pEi3xiwPV-vKyJfAQeaGpQvi61Sbq-j_80_nNyoSHxsHfGET6F1JAurlJdxzGkZOgCLNiBvd8NBmfa2nHWH2D6F3HRyBBKcpeldOwOfIAixYY03SLzWGaADn05fTYZStf6cMW53HmILzqVTq4zk2' },
-];
-
-const MOCK_QUEUE = [
-  { track: { title: 'Logdrum Ritual', artist: 'Musa Keys', artwork: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZl6tR1L5AHtSqH3ReIfSikWmS1iIEwWH5IZUIZC8O76bqMctYRlctUPSrWG04PZLwz79NWvnCMAfHsrlZNRLZoEryytrs-ExN8uAmhENBCxD-g6duDS_sgFOGAjleTswTZQfxFs7CqVvR0ddN5g0QQ-kUMgqAXFlkcIKnHa84FscN6LZC0sQ6IekO8DMaGTkCNOVUgSdV_DZPstRdv2Z5gGFBmpFMMiFZuI_i5xha3qoQUnuS7O_idv8KPQ4TCU1ZYkp9rzP56wyi' }, addedBy: MOCK_PARTICIPANTS[0] },
-  { track: { title: 'Summer High', artist: 'Davido', artwork: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDSYwSItPrZvE1EYzhifmJio3PMDdUAFCgNCielsiP8Iml48A0TdbIDJNYVvIWT8qN_LhMfixfeG9l78hEq6A2tsKhRb-3S8jMhSIourpWWtoGwyj2zI_NK88d2rXIZMIGQtDFHHJS8D2e5LLCl9EEBsRntT5eNqNJXpXKOE5fRU5nEfGGG8pQepFwjvkA_hRj-HIy7UXBVUJpp6TBZGe8j5Y4qgDhv493tqlfwI071Lfn_aQcRsZMU8jIu9Wb7vgy9dpwtucq2WzRn' }, addedBy: MOCK_PARTICIPANTS[1] },
-  { track: { title: 'Mnike (Remix)', artist: 'Tyler ICU', artwork: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDrEu7Ie3Q9LsKFkI05gYMyKFRBlNF4NhwLqu4TSVWrvtd-QczOcbB8Iwhlu-z7OuGIjmim4TmBfUiIAj71ymYgy05Y1s0ocjoqLEOGQhHHFgCh8mj2NyYfsN2xti0H_VY1aID_Lh_FKt2j-_lDnf9B_O6TgHGf6sJMFTwM6Iw1DKWc8oE3IrTdYxzojXVsnCmOGcdii1oImTMPufbpGny0Q2yRR-nSRtcwN9FuN0UccN3Sdg_Bpa4T52vA-1_g1JECSjExACJ3trs8' }, addedBy: MOCK_PARTICIPANTS[2] },
-];
 
 const styles = StyleSheet.create({
   container: {
@@ -185,6 +376,99 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  onboardingContainer: {
+    paddingHorizontal: THEME.spacing.marginMobile,
+    paddingTop: 40,
+    gap: 20,
+    paddingBottom: 120,
+  },
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  heroTitle: {
+    ...THEME.typography.displayLg,
+    fontSize: 28,
+    color: THEME.colors.primaryFixed,
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  heroDescription: {
+    ...THEME.typography.bodyLg,
+    color: THEME.colors.onSurfaceVariant,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 22,
+  },
+  warningBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 14,
+    backgroundColor: 'rgba(255, 180, 164, 0.1)',
+    borderRadius: THEME.rounded.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 180, 164, 0.2)',
+  },
+  warningText: {
+    ...THEME.typography.labelSm,
+    color: '#ffb4a4',
+    flex: 1,
+    lineHeight: 16,
+  },
+  card: {
+    backgroundColor: THEME.colors.surfaceContainerLow,
+    padding: 20,
+    borderRadius: THEME.rounded.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+  },
+  cardTitle: {
+    ...THEME.typography.headlineMd,
+    fontSize: 16,
+    color: THEME.colors.onSurface,
+    marginBottom: 12,
+  },
+  textInput: {
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: THEME.rounded.default,
+    padding: 14,
+    color: THEME.colors.onSurface,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  primaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: THEME.colors.primaryFixed,
+    padding: 16,
+    borderRadius: THEME.rounded.default,
+    gap: 8,
+  },
+  primaryButtonText: {
+    ...THEME.typography.labelLg,
+    color: THEME.colors.onPrimaryFixed,
+    fontWeight: 'bold',
+  },
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 228, 118, 0.1)',
+    borderWidth: 1,
+    borderColor: THEME.colors.primaryFixed,
+    padding: 16,
+    borderRadius: THEME.rounded.default,
+    gap: 8,
+  },
+  secondaryButtonText: {
+    ...THEME.typography.labelLg,
+    color: THEME.colors.primaryFixed,
+    fontWeight: 'bold',
   },
   header: {
     flexDirection: 'row',
@@ -197,6 +481,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    flex: 1,
   },
   iconCircle: {
     padding: 8,
@@ -205,28 +490,25 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...THEME.typography.headlineMd,
-    fontSize: 20,
+    fontSize: 18,
     color: THEME.colors.primaryFixedDim,
+  },
+  headerSubtitle: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
+    fontSize: 12,
   },
   headerRight: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+    gap: 8,
   },
-  smallProfile: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: THEME.colors.outlineVariant,
-  },
-  fullImage: {
-    width: '100%',
-    height: '100%',
+  headerIconButton: {
+    padding: 8,
+    backgroundColor: THEME.colors.surfaceContainerHigh,
+    borderRadius: 20,
   },
   radarSection: {
-    height: 240,
+    height: 180,
     marginHorizontal: THEME.spacing.marginMobile,
     backgroundColor: THEME.colors.surfaceContainerLowest,
     borderRadius: THEME.rounded.lg,
@@ -240,19 +522,19 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   hubIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(97, 255, 151, 0.1)',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(0, 228, 118, 0.1)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(97, 255, 151, 0.3)',
+    borderColor: 'rgba(0, 228, 118, 0.3)',
   },
   radarLabel: {
     ...THEME.typography.labelSm,
     color: THEME.colors.primaryFixed,
-    marginTop: 16,
+    marginTop: 12,
     letterSpacing: 2,
   },
   section: {
@@ -281,7 +563,7 @@ const styles = StyleSheet.create({
   participantContainer: {
     alignItems: 'center',
     marginRight: 16,
-    width: 72,
+    width: 80,
   },
   avatarBorder: {
     padding: 3,
@@ -315,26 +597,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
   },
-  addParticipant: {
-    alignItems: 'center',
-    marginRight: THEME.spacing.marginMobile,
-  },
-  addIconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: THEME.colors.outlineVariant,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  addLabel: {
-    ...THEME.typography.labelSm,
-    fontSize: 10,
-    color: THEME.colors.onSurfaceVariant,
-    marginTop: 12,
-  },
   queueContainer: {
     paddingHorizontal: THEME.spacing.marginMobile,
     gap: 12,
@@ -349,7 +611,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.05)',
   },
   nowPlayingItem: {
-    backgroundColor: 'rgba(18, 18, 18, 0.8)',
+    borderColor: THEME.colors.primaryFixedDim,
+    backgroundColor: 'rgba(0, 228, 118, 0.05)',
   },
   queueArtwork: {
     width: 48,
@@ -371,22 +634,6 @@ const styles = StyleSheet.create({
     ...THEME.typography.labelSm,
     fontSize: 12,
     color: THEME.colors.onSurfaceVariant,
-  },
-  addedBy: {
-    alignItems: 'flex-end',
-    gap: 4,
-  },
-  addedByAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: THEME.colors.primaryFixed,
-  },
-  hostLabel: {
-    ...THEME.typography.labelSm,
-    fontSize: 10,
-    color: THEME.colors.primaryFixed,
   },
   playbackProgress: {
     position: 'absolute',
@@ -415,6 +662,73 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
+  },
+  emptyText: {
+    ...THEME.typography.bodyLg,
+    color: THEME.colors.onSurfaceVariant,
+    textAlign: 'center',
+    paddingVertical: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: THEME.colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: THEME.spacing.marginMobile,
+    paddingVertical: THEME.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  modalTitle: {
+    ...THEME.typography.headlineMd,
+    color: THEME.colors.onSurface,
+  },
+  modalSearchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: THEME.colors.surfaceContainerLow,
+    marginHorizontal: THEME.spacing.marginMobile,
+    marginVertical: THEME.spacing.md,
+    borderRadius: THEME.rounded.default,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  modalSearchInput: {
+    flex: 1,
+    height: 48,
+    color: THEME.colors.onSurface,
+    fontSize: 16,
+  },
+  modalResultsList: {
+    paddingHorizontal: THEME.spacing.marginMobile,
+    gap: 12,
+  },
+  modalResultItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: THEME.colors.surfaceContainerLow,
+    borderRadius: THEME.rounded.lg,
+    gap: 12,
+  },
+  modalResultArtwork: {
+    width: 48,
+    height: 48,
+    borderRadius: THEME.rounded.default,
+  },
+  modalResultInfo: {
+    flex: 1,
+  },
+  modalResultTitle: {
+    ...THEME.typography.labelLg,
+    color: THEME.colors.onSurface,
+  },
+  modalResultArtist: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
   },
 });
 
