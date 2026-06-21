@@ -4,8 +4,8 @@ import { Share } from 'react-native';
 // =========================================================================
 // REPLACE THESE WITH YOUR OWN SUPABASE CREDENTIALS TO ENABLE CLOUD REALTIME SYNC
 // =========================================================================
-const SUPABASE_URL = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
+const SUPABASE_URL: string = 'https://faqgysmdcjdlnrpclfju.supabase.co';
+const SUPABASE_ANON_KEY: string = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhcWd5c21kY2pkbG5ycGNsZmp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5ODc3ODksImV4cCI6MjA5NzU2Mzc4OX0.A3KKlxkp8Z_oUlYLc5l5sdzl1G9wC-ZeLxs516cfaPU';
 
 export const isSupabaseConfigured = () => {
   return (
