@@ -23,7 +23,7 @@ const HomeScreen = () => {
   const [hits, setHits] = useState<TrackData[]>([]);
   const [featured, setFeatured] = useState<TrackData | null>(null);
   
-  const { setCurrentTrack, setIsPlaying } = usePlayerStore();
+  const { setCurrentTrack, setIsPlaying, playTrackFromQueue } = usePlayerStore();
 
   const locals = hits.slice(0, 3);
   const mixes = hits;
@@ -42,8 +42,7 @@ const HomeScreen = () => {
 
   const handlePlayTrack = (track: TrackData) => {
     try {
-      setCurrentTrack(track);
-      setIsPlaying(true);
+      playTrackFromQueue(track, hits);
     } catch (error) {
       console.error('Error playing track:', error);
     }
@@ -74,7 +73,7 @@ const HomeScreen = () => {
   );
 
   const renderMixCard = ({ item }: { item: TrackData }) => (
-    <TouchableOpacity style={styles.mixCard}>
+    <TouchableOpacity style={styles.mixCard} onPress={() => handlePlayTrack(item)}>
       <View style={styles.mixImageContainer}>
         <Image source={{ uri: item.artwork }} style={styles.mixImage} />
       </View>
@@ -117,7 +116,7 @@ const HomeScreen = () => {
                 </View>
                 <Text style={styles.heroTitle}>{featured.title}</Text>
                 <Text style={styles.heroSubtitle}>{featured.artist}</Text>
-                <TouchableOpacity style={styles.heroPlayButton}>
+                <TouchableOpacity style={styles.heroPlayButton} onPress={() => handlePlayTrack(featured)}>
                   <Icon name="play-arrow" size={24} color={THEME.colors.onPrimaryFixed} />
                   <Text style={styles.heroPlayButtonText}>ÉCOUTER MAINTENANT</Text>
                 </TouchableOpacity>
@@ -158,7 +157,7 @@ const HomeScreen = () => {
           <FlatList
             data={locals}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.bentoCard}>
+              <TouchableOpacity style={styles.bentoCard} onPress={() => handlePlayTrack(item)}>
                 <Image source={{ uri: item.artwork }} style={styles.bentoImage} />
                 <View style={styles.bentoContent}>
                   <View style={styles.newBadge}>

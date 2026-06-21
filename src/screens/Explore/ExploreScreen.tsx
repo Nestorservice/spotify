@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -13,18 +13,47 @@ import {
   Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { THEME } from '../../theme';
-import { musicService, TrackData } from '../../services/MusicService';
-import { usePlayerStore } from '../../store/usePlayerStore';
+import {THEME} from '../../theme';
+import {musicService, TrackData} from '../../services/MusicService';
+import {usePlayerStore} from '../../store/usePlayerStore';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
+
+const GENRES = [
+  {title: 'Afrobeats', color: '#00ff85', keyword: 'afrobeats'},
+  {title: 'Amapiano', color: '#ffb4a4', keyword: 'amapiano'},
+  {title: 'Makossa', color: '#f7be1d', keyword: 'makossa'},
+  {title: 'Bikutsi', color: '#e5e2e1', keyword: 'bikutsi'},
+  {title: 'Highlife', color: '#00e476', keyword: 'highlife'},
+  {title: 'Afro House', color: '#ffb9aa', keyword: 'afro house'},
+];
+
+const MOODS = [
+  {title: 'Chill', icon: 'flare', keyword: 'chill african'},
+  {title: 'Workout', icon: 'fitness-center', keyword: 'workout afro'},
+  {title: 'Focus', icon: 'self-improvement', keyword: 'focus music'},
+  {title: 'Party', icon: 'celebration', keyword: 'afro party'},
+];
 
 const ExploreScreen = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<TrackData[]>([]);
   const [loading, setLoading] = useState(false);
-  const { setCurrentTrack, setIsPlaying } = usePlayerStore();
+  const [featuredTracks, setFeaturedTracks] = useState<TrackData[]>([]);
+  const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const {setCurrentTrack, setIsPlaying, playTrackFromQueue} = usePlayerStore();
+
+  useEffect(() => {
+    loadFeatured();
+  }, []);
+
+  const loadFeatured = async () => {
+    setLoadingFeatured(true);
+    const tracks = await musicService.searchTracks('afrobeats 2024');
+    setFeaturedTracks(tracks.slice(0, 5));
+    setLoadingFeatured(false);
+  };
 
   const handleSearch = async (text: string) => {
     setQuery(text);
@@ -38,58 +67,70 @@ const ExploreScreen = () => {
     }
   };
 
-  const handlePlayTrack = (track: TrackData) => {
-    try {
-      setCurrentTrack(track);
-      setIsPlaying(true);
-    } catch (error) {
-      console.error('Error playing track:', error);
-    }
+  const handlePlayTrack = (track: TrackData, queue: TrackData[] = [track]) => {
+    playTrackFromQueue(track, queue);
   };
 
-  const renderSearchResult = ({ item }: { item: TrackData }) => (
-    <TouchableOpacity 
+  const handleGenrePress = async (keyword: string) => {
+    setLoading(true);
+    setQuery(keyword);
+    const tracks = await musicService.searchTracks(keyword);
+    setResults(tracks);
+    setLoading(false);
+  };
+
+  const handleMoodPress = async (keyword: string) => {
+    setLoading(true);
+    setQuery(keyword);
+    const tracks = await musicService.searchTracks(keyword);
+    setResults(tracks);
+    setLoading(false);
+  };
+
+  const renderSearchResult = ({item}: {item: TrackData}) => (
+    <TouchableOpacity
       style={styles.resultItem}
-      onPress={() => handlePlayTrack(item)}
-    >
-      <Image source={{ uri: item.artwork }} style={styles.resultImage} />
+      onPress={() => handlePlayTrack(item, results)}>
+      <Image source={{uri: item.artwork}} style={styles.resultImage} />
       <View style={styles.resultInfo}>
-        <Text style={styles.resultTitle} numberOfLines={1}>{item.title}</Text>
-        <Text style={styles.resultArtist} numberOfLines={1}>{item.artist}</Text>
+        <Text style={styles.resultTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={styles.resultArtist} numberOfLines={1}>
+          {item.artist}
+        </Text>
       </View>
-      <Icon name="play-circle-outline" size={24} color={THEME.colors.primaryFixedDim} />
+      <TouchableOpacity onPress={() => handlePlayTrack(item, results)}>
+        <Icon
+          name="play-circle-outline"
+          size={28}
+          color={THEME.colors.primaryFixedDim}
+        />
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       <BackgroundMotif />
-      
+
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.profileContainer}>
-              <Image 
-                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAM4-yMLaTqv9lrCkbyhQk0vOL-q_Kbhkh_fZHeIZoQDUTNqg-ffXeSJgWr797WDIpFhuY-3FvK0IfozpfcEVuDTTIcOv41EfUnmagapH7wHehahlk634KuR2J7hsOXVd84n3LWy6XBuuYrl6dYcPJwvg4ZoCFaq_iErgIALWswQO-c6wLIsssxiDv7QChDFMynCKXUwvZG8ixJGH3ciE_Mmo-jDfcp8gYDT0JS9WpSgni7k3MuLaiGF9kmjk7puy1DdaYgRJ_YimSU' }} 
-                style={styles.profileImage} 
-              />
-            </View>
-            <Text style={styles.brandTitle}>Sauti</Text>
-          </View>
-          <TouchableOpacity>
-            <Icon name="settings" size={24} color={THEME.colors.onSurfaceVariant} />
-          </TouchableOpacity>
+          <Text style={styles.brandTitle}>Explorer</Text>
         </View>
 
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
+          showsVerticalScrollIndicator={false}>
           {/* Search Bar */}
           <View style={styles.searchSection}>
             <View style={styles.searchBar}>
-              <Icon name="search" size={24} color={THEME.colors.onSurfaceVariant} />
+              <Icon
+                name="search"
+                size={24}
+                color={THEME.colors.onSurfaceVariant}
+              />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Artistes, titres ou genres..."
@@ -97,85 +138,164 @@ const ExploreScreen = () => {
                 value={query}
                 onChangeText={handleSearch}
               />
+              {query.length > 0 && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setQuery('');
+                    setResults([]);
+                  }}>
+                  <Icon
+                    name="close"
+                    size={20}
+                    color={THEME.colors.onSurfaceVariant}
+                  />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
 
           {/* Search Results */}
           {loading ? (
-            <ActivityIndicator size="large" color={THEME.colors.primaryFixedDim} style={{ marginVertical: 20 }} />
+            <ActivityIndicator
+              size="large"
+              color={THEME.colors.primaryFixedDim}
+              style={{marginVertical: 20}}
+            />
           ) : results.length > 0 ? (
             <View style={styles.resultsContainer}>
+              <Text style={styles.resultsLabel}>
+                {results.length} résultats
+              </Text>
               <FlatList
                 data={results}
                 renderItem={renderSearchResult}
-                keyExtractor={(item) => item.id}
+                keyExtractor={item => item.id}
                 scrollEnabled={false}
                 contentContainerStyle={styles.resultsList}
               />
             </View>
-          ) : null}
+          ) : (
+            <>
+              {/* Featured / Daily Discovery */}
+              {!loadingFeatured && featuredTracks.length > 0 && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>
+                    Découverte du Jour
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.heroCard}
+                    onPress={() => handlePlayTrack(featuredTracks[0], featuredTracks)}>
+                    <Image
+                      source={{uri: featuredTracks[0].artwork}}
+                      style={styles.heroImage}
+                    />
+                    <View style={styles.heroOverlay}>
+                      <Text style={styles.heroBadge}>A L'HONNEUR</Text>
+                      <Text style={styles.heroTitle}>
+                        {featuredTracks[0].title}
+                      </Text>
+                      <Text style={styles.heroArtist}>
+                        {featuredTracks[0].artist}
+                      </Text>
+                      <View style={styles.heroPlayBtn}>
+                        <Icon name="play-arrow" size={20} color="#000" />
+                        <Text style={styles.heroPlayText}>ECOUTER</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              )}
 
-          {/* Daily Discovery */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Daily Discovery</Text>
-            <TouchableOpacity style={styles.heroCard}>
-              <Image 
-                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAJiooX-ureSuIRyq8Pt0JPzZq9LAnvwLhaeQex-iafmW59JjEkJepZ0rcJmXnhFUlVLmQBqruBHirWeRUBo_e5HT1AmYcpoc_Oiu0fDsW8SReCRJTuRsd7hRM8C7Y0Zt3yH-acCd2xJaKw32zM-NNMZ_oaAsUpsGKNaQN3FGMCbWCy18yFwB01rmO2NXO3m_T1GevdlRurS1UBlToNACfYRy84tpqRp2LMPiqrx4yVgtIGkIAgqqXjRVmOLsphJjfKE6IShBvTtUmO' }} 
-                style={styles.heroImage} 
-              />
-              <View style={styles.heroOverlay}>
-                <Text style={styles.heroBadge}>EDITORS' PICK</Text>
-                <Text style={styles.heroTitle}>Lagos Night Rhythms</Text>
+              {/* Explore Genres */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Explorer par Genre</Text>
+                <View style={styles.genreGrid}>
+                  {GENRES.map(genre => (
+                    <TouchableOpacity
+                      key={genre.title}
+                      style={[
+                        styles.genreCard,
+                        {backgroundColor: `${genre.color}15`},
+                      ]}
+                      onPress={() => handleGenrePress(genre.keyword)}>
+                      <Text style={[styles.genreTitle, {color: genre.color}]}>
+                        {genre.title}
+                      </Text>
+                      <Icon
+                        name="play-arrow"
+                        size={20}
+                        color={genre.color}
+                        style={styles.genreIcon}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-            </TouchableOpacity>
-          </View>
 
-          {/* Explore Genres */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Explore Genres</Text>
-            <View style={styles.genreGrid}>
-              <GenreCard title="Afrobeats" color="#00ff85" icon="radio" />
-              <GenreCard title="Amapiano" color="#ffb4a4" icon="piano" />
-              <GenreCard title="Makossa" color="#f7be1d" icon="waves" />
-              <GenreCard title="Bikutsi" color="#e5e2e1" icon="auto_graph" />
-              <GenreCard title="Highlife" color="#00e476" icon="equalizer" />
-              <GenreCard title="Ethio-Jazz" color="#ffb9aa" icon="nightlife" />
-            </View>
-          </View>
+              {/* Moods & Moments */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Ambiances</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.moodsRow}>
+                  {MOODS.map(mood => (
+                    <TouchableOpacity
+                      key={mood.title}
+                      style={styles.moodCard}
+                      onPress={() => handleMoodPress(mood.keyword)}>
+                      <View style={styles.moodCircle}>
+                        <Icon
+                          name={mood.icon}
+                          size={32}
+                          color={THEME.colors.primaryFixedDim}
+                        />
+                      </View>
+                      <Text style={styles.moodTitle}>{mood.title}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
 
-          {/* Moods & Moments */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Moods & Moments</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.moodsRow}>
-              <MoodCard title="Morning" icon="flare" color={THEME.colors.primaryFixedDim} />
-              <MoodCard title="Workout" icon="fitness-center" color={THEME.colors.secondary} />
-              <MoodCard title="Focus" icon="self-improvement" color={THEME.colors.tertiaryFixedDim} />
-              <MoodCard title="Party" icon="celebration" color={THEME.colors.primaryFixed} />
-            </ScrollView>
-          </View>
+              {/* More featured tracks */}
+              {featuredTracks.length > 1 && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>En ce moment</Text>
+                  {featuredTracks.slice(1).map(track => (
+                    <TouchableOpacity
+                      key={track.id}
+                      style={styles.resultItem}
+                      onPress={() => handlePlayTrack(track, featuredTracks)}>
+                      <Image
+                        source={{uri: track.artwork}}
+                        style={styles.resultImage}
+                      />
+                      <View style={styles.resultInfo}>
+                        <Text style={styles.resultTitle} numberOfLines={1}>
+                          {track.title}
+                        </Text>
+                        <Text style={styles.resultArtist} numberOfLines={1}>
+                          {track.artist}
+                        </Text>
+                      </View>
+                      <Icon
+                        name="play-circle-outline"
+                        size={28}
+                        color={THEME.colors.primaryFixedDim}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
 
-          <View style={{ height: 120 }} />
+          <View style={{height: 120}} />
         </ScrollView>
       </SafeAreaView>
     </View>
   );
 };
-
-const GenreCard = ({ title, color, icon }: any) => (
-  <TouchableOpacity style={[styles.genreCard, { backgroundColor: `${color}10` }]}>
-    <Text style={[styles.genreTitle, { color }]}>{title}</Text>
-    <Icon name={icon} size={24} color={color} style={styles.genreIcon} />
-  </TouchableOpacity>
-);
-
-const MoodCard = ({ title, icon, color }: any) => (
-  <TouchableOpacity style={styles.moodCard}>
-    <View style={styles.moodCircle}>
-      <Icon name={icon} size={32} color={color} />
-    </View>
-    <Text style={styles.moodTitle}>{title}</Text>
-  </TouchableOpacity>
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -186,28 +306,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: THEME.spacing.marginMobile,
     paddingVertical: THEME.spacing.md,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  profileContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
   },
   brandTitle: {
     ...THEME.typography.displayLg,
@@ -247,7 +347,7 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     marginHorizontal: THEME.spacing.marginMobile,
-    height: 192,
+    height: 200,
     borderRadius: THEME.rounded.lg,
     overflow: 'hidden',
   },
@@ -257,7 +357,7 @@ const styles = StyleSheet.create({
   },
   heroOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'flex-end',
     padding: 16,
   },
@@ -265,10 +365,32 @@ const styles = StyleSheet.create({
     ...THEME.typography.labelSm,
     color: THEME.colors.primaryFixed,
     marginBottom: 4,
+    letterSpacing: 2,
   },
   heroTitle: {
     ...THEME.typography.headlineMd,
     color: THEME.colors.white,
+  },
+  heroArtist: {
+    ...THEME.typography.labelLg,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 8,
+  },
+  heroPlayBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: THEME.colors.primaryFixedDim,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+  },
+  heroPlayText: {
+    ...THEME.typography.labelSm,
+    color: '#000',
+    fontWeight: '700',
+    letterSpacing: 1,
   },
   genreGrid: {
     flexDirection: 'row',
@@ -277,10 +399,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   genreCard: {
-    width: (width - (THEME.spacing.marginMobile * 2) - 12) / 2,
-    height: 120,
+    width: (width - THEME.spacing.marginMobile * 2 - 12) / 2,
+    height: 100,
     borderRadius: THEME.rounded.lg,
     padding: 16,
+    justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
@@ -289,10 +412,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   genreIcon: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    opacity: 0.5,
+    alignSelf: 'flex-end',
+    opacity: 0.6,
   },
   moodsRow: {
     paddingLeft: THEME.spacing.marginMobile,
@@ -302,9 +423,9 @@ const styles = StyleSheet.create({
     marginRight: 24,
   },
   moodCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     justifyContent: 'center',
@@ -319,16 +440,23 @@ const styles = StyleSheet.create({
   resultsContainer: {
     marginBottom: THEME.spacing.lg,
   },
+  resultsLabel: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
+    paddingHorizontal: THEME.spacing.marginMobile,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   resultsList: {
     paddingHorizontal: THEME.spacing.marginMobile,
   },
   resultItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
-    gap: 16,
+    paddingVertical: 10,
+    paddingHorizontal: THEME.spacing.marginMobile,
+    gap: 14,
   },
   resultImage: {
     width: 56,
@@ -346,7 +474,7 @@ const styles = StyleSheet.create({
   resultArtist: {
     ...THEME.typography.labelSm,
     color: THEME.colors.onSurfaceVariant,
-    marginTop: 4,
+    marginTop: 2,
   },
 });
 

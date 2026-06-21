@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,35 +8,185 @@ import {
   TouchableOpacity,
   SafeAreaView,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { THEME } from '../../theme';
+import {THEME} from '../../theme';
+import {musicService, TrackData, ArtistData, PlaylistData} from '../../services/MusicService';
+import {usePlayerStore} from '../../store/usePlayerStore';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
+type FilterType = 'Tracks' | 'Artists' | 'Playlists';
+
 const LibraryScreen = () => {
-  const [activeFilter, setActiveFilter] = useState('Playlists');
+  const [activeFilter, setActiveFilter] = useState<FilterType>('Tracks');
+  const [tracks, setTracks] = useState<TrackData[]>([]);
+  const [artists, setArtists] = useState<ArtistData[]>([]);
+  const [playlists, setPlaylists] = useState<PlaylistData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const {setCurrentTrack, setIsPlaying, playTrackFromQueue} = usePlayerStore();
 
-  const filters = ['Playlists', 'Albums', 'Artists', 'Downloads'];
+  const filters: FilterType[] = ['Tracks', 'Artists', 'Playlists'];
 
-  const renderFilter = (filter: string) => (
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [t, a, p] = await Promise.all([
+        musicService.getTrendingTracks(),
+        musicService.getTopArtists(),
+        musicService.getTopPlaylists(),
+      ]);
+      setTracks(t);
+      setArtists(a);
+      setPlaylists(p);
+    } catch (error) {
+      console.error('Error loading library data:', error);
+    }
+    setLoading(false);
+  };
+
+  const handlePlayTrack = (track: TrackData, queue: TrackData[] = [track]) => {
+    playTrackFromQueue(track, queue);
+  };
+
+  const handleArtistPress = async (artist: ArtistData) => {
+    setLoading(true);
+    const artistTracks = await musicService.getArtistTracks(artist.id);
+    setTracks(artistTracks);
+    setActiveFilter('Tracks');
+    setLoading(false);
+  };
+
+  const handlePlaylistPress = async (playlist: PlaylistData) => {
+    setLoading(true);
+    const playlistTracks = await musicService.getPlaylistTracks(playlist.id);
+    setTracks(playlistTracks);
+    setActiveFilter('Tracks');
+    setLoading(false);
+  };
+
+  const renderFilter = (filter: FilterType) => (
     <TouchableOpacity
       key={filter}
       onPress={() => setActiveFilter(filter)}
       style={[
         styles.filterChip,
         activeFilter === filter && styles.activeFilterChip,
-      ]}
-    >
+      ]}>
       <Text
         style={[
           styles.filterText,
           activeFilter === filter && styles.activeFilterText,
-        ]}
-      >
+        ]}>
         {filter}
       </Text>
     </TouchableOpacity>
   );
+
+  const renderTrackItem = ({item}: {item: TrackData}) => (
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => handlePlayTrack(item, tracks)}>
+      <Image source={{uri: item.artwork}} style={styles.itemImage} />
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={styles.itemSubtitle} numberOfLines={1}>
+          {item.artist}
+        </Text>
+      </View>
+      <TouchableOpacity onPress={() => handlePlayTrack(item, tracks)}>
+        <Icon
+          name="play-circle-outline"
+          size={28}
+          color={THEME.colors.primaryFixedDim}
+        />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+
+  const renderArtistItem = ({item}: {item: ArtistData}) => (
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => handleArtistPress(item)}>
+      <Image source={{uri: item.picture}} style={styles.roundedImage} />
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemTitle} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <Text style={styles.itemSubtitle}>
+          {item.fans
+            ? `${(item.fans / 1000000).toFixed(1)}M fans`
+            : 'Artiste'}
+        </Text>
+      </View>
+      <Icon name="chevron-right" size={24} color={THEME.colors.onSurfaceVariant} />
+    </TouchableOpacity>
+  );
+
+  const renderPlaylistItem = ({item}: {item: PlaylistData}) => (
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={() => handlePlaylistPress(item)}>
+      <Image source={{uri: item.picture}} style={styles.itemImage} />
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={styles.itemSubtitle}>
+          {item.trackCount} titres{item.creator ? ` • ${item.creator}` : ''}
+        </Text>
+      </View>
+      <Icon name="chevron-right" size={24} color={THEME.colors.onSurfaceVariant} />
+    </TouchableOpacity>
+  );
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <ActivityIndicator
+          size="large"
+          color={THEME.colors.primaryFixedDim}
+          style={{marginTop: 40}}
+        />
+      );
+    }
+
+    switch (activeFilter) {
+      case 'Tracks':
+        return (
+          <FlatList
+            data={tracks}
+            renderItem={renderTrackItem}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+          />
+        );
+      case 'Artists':
+        return (
+          <FlatList
+            data={artists}
+            renderItem={renderArtistItem}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+          />
+        );
+      case 'Playlists':
+        return (
+          <FlatList
+            data={playlists}
+            renderItem={renderPlaylistItem}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+          />
+        );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -44,100 +194,29 @@ const LibraryScreen = () => {
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.profileContainer}>
-              <Image 
-                source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAM4-yMLaTqv9lrCkbyhQk0vOL-q_Kbhkh_fZHeIZoQDUTNqg-ffXeSJgWr797WDIpFhuY-3FvK0IfozpfcEVuDTTIcOv41EfUnmagapH7wHehahlk634KuR2J7hsOXVd84n3LWy6XBuuYrl6dYcPJwvg4ZoCFaq_iErgIALWswQO-c6wLIsssxiDv7QChDFMynCKXUwvZG8ixJGH3ciE_Mmo-jDfcp8gYDT0JS9WpSgni7k3MuLaiGF9kmjk7puy1DdaYgRJ_YimSU' }} 
-                style={styles.profileImage} 
-              />
-            </View>
-            <Text style={styles.brandTitle}>Sauti</Text>
-          </View>
-          <TouchableOpacity>
-            <Icon name="settings" size={24} color={THEME.colors.primaryFixedDim} />
-          </TouchableOpacity>
+          <Text style={styles.brandTitle}>Bibliothèque</Text>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}>
           {/* Filters */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersRow}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filtersRow}>
             {filters.map(renderFilter)}
           </ScrollView>
 
-          {/* Section Title */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Your Library</Text>
-            <TouchableOpacity style={styles.sortButton}>
-              <Icon name="sort" size={20} color={THEME.colors.onSurfaceVariant} />
-              <Text style={styles.sortText}>Recent</Text>
-            </TouchableOpacity>
-          </View>
+          {/* Content */}
+          <View style={styles.listContainer}>{renderContent()}</View>
 
-          {/* Library Items */}
-          <View style={styles.libraryList}>
-            <LibraryItem 
-              title="Liked Songs" 
-              subtitle="Playlist • 428 songs" 
-              icon="favorite" 
-              gradient 
-            />
-            <LibraryItem 
-              title="Amapiano Rituals" 
-              subtitle="Playlist • Sauti Curated" 
-              artwork="https://lh3.googleusercontent.com/aida-public/AB6AXuCPpRB_9lKZ_BiZHRVOnpiAK_2q3TkbY1v2dk5DID7QN2kolkv7_8lsyDS6x8D5LyCAu2tSdMj_XBiMYhJ_Wnmp_pYQibhfR8iIUAb70FUyWLcjKfXWbe0AIplZtkhvxdDKjgsr-Zr3BhZ4WPkrZgI38duTr7Ff2Yu3-6hz-2H_oHaN7P3mF21jV2ItL2-rI8i1I5blc2nY2U2G5H0Fos4KBpjlRE0tJmgj7TVwcStevOfsnEzdR1RNkk0bPujvtEhosbHl2OhvWFji" 
-            />
-            <LibraryItem 
-              title="African Giant" 
-              subtitle="Album • Burna Boy" 
-              artwork="https://lh3.googleusercontent.com/aida-public/AB6AXuC43K2sOnFgHhf9nWuKnEFQmI9bC-ctywYurX_uaWDS04JQRbTYZBvt1xW_bMM0n6CwDv3tUOBzzdeCiXM65TP4cXoz7GKDLXCA8CNIZY3mnCehb-a6bmhPNK8pT7yVLYhNUA7ZeaM-qvGU4YTH0d0DwJgFnCLdYd4XMdxdD5u2_HDLhiGIrz1j_rRLXXqH_3a9a6QUDdc66rhTafIVLrMR6ffJRLKlFU2H3tOLXGCz7LshZoZU08g33MrRDw74wzVQ9LAJmyzHHNHS" 
-              downloaded
-            />
-            <LibraryItem 
-              title="Afro-House Essentials" 
-              subtitle="Playlist • 120 songs" 
-              artwork="https://lh3.googleusercontent.com/aida-public/AB6AXuDcIiH22NSjb_Cuk9oRb8aR67svueOHbctJuVzd-4U4NwslfKeXrzaBQWGh2zHTMA7LjwfmpMJax1WepibFNYqsJd1P3QxUVBtNoymFHH4EepoRnFazVWv0nYOPvWcw6lAtbbYgdKxy0CDkwviEhf7Wh6PeOgb3ijBbF5I_MBsyc9egSY_cWDuhSC0Ev-NFA2rL6RwVHe_nYNUQq8KDQ7ZbP5yiJ02TrQul93b5o2gpugcQbabh53Wb1FzaDwcE3X0rvPKMvWm7AA1G" 
-            />
-            <LibraryItem 
-              title="Wizkid" 
-              subtitle="Artist" 
-              artwork="https://lh3.googleusercontent.com/aida-public/AB6AXuAjaFTqWxgAUcdJR1VzBwlKabuQeWN8KyVvDJlN59tf82OeUP8iYNtZtHMOr0ldf9dROlIvEzG6C0dMCSa7Aj-K1if21WviFDXbrXQOmxKjII5o8HhXlpyFEZcfKd-0egK2F3DeGgs-2NwjkFs4ejp4gQDml6B0Ia73MfA4biYlgKiUbwX-SyuaPFS5CEG6DxQtueMWNi20Uib-k7cV16DRyYY_vN0SQSEpr79JUxYJ0EHVj9dEC1PrnCD3iZ1g_jVOnvt0yJ8reIgo" 
-              rounded 
-            />
-          </View>
-
-          <View style={{ height: 160 }} />
+          <View style={{height: 120}} />
         </ScrollView>
-
-        {/* FAB */}
-        <TouchableOpacity style={styles.fab}>
-          <Icon name="add" size={32} color={THEME.colors.onTertiaryFixed} />
-        </TouchableOpacity>
       </SafeAreaView>
     </View>
   );
 };
-
-const LibraryItem = ({ title, subtitle, artwork, icon, gradient, downloaded, rounded }: any) => (
-  <TouchableOpacity style={styles.itemContainer}>
-    {gradient ? (
-      <View style={[styles.itemImage, styles.gradientBg]}>
-        <Icon name={icon} size={32} color={THEME.colors.onPrimaryContainer} />
-      </View>
-    ) : (
-      <Image 
-        source={{ uri: artwork }} 
-        style={[styles.itemImage, rounded && styles.roundedImage]} 
-      />
-    )}
-    <View style={styles.itemInfo}>
-      <Text style={styles.itemTitle}>{title}</Text>
-      <Text style={styles.itemSubtitle}>{subtitle}</Text>
-    </View>
-    {downloaded && (
-      <Icon name="download-done" size={20} color={THEME.colors.primaryFixedDim} />
-    )}
-  </TouchableOpacity>
-);
 
 const styles = StyleSheet.create({
   container: {
@@ -148,28 +227,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: THEME.spacing.marginMobile,
     paddingVertical: THEME.spacing.md,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  profileContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-  },
-  profileImage: {
-    width: '100%',
-    height: '100%',
   },
   brandTitle: {
     ...THEME.typography.displayLg,
@@ -203,50 +262,28 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: THEME.colors.primaryFixed,
   },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  listContainer: {
     paddingHorizontal: THEME.spacing.marginMobile,
-    marginBottom: THEME.spacing.md,
-  },
-  sectionTitle: {
-    ...THEME.typography.headlineLgMobile,
-    color: THEME.colors.onBackground,
-  },
-  sortButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  sortText: {
-    ...THEME.typography.labelLg,
-    color: THEME.colors.onSurfaceVariant,
-  },
-  libraryList: {
-    paddingHorizontal: THEME.spacing.marginMobile - 8,
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 8,
-    borderRadius: THEME.rounded.lg,
-    gap: 16,
-    marginBottom: 8,
+    paddingVertical: 10,
+    gap: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.04)',
   },
   itemImage: {
-    width: 64,
-    height: 64,
+    width: 56,
+    height: 56,
     borderRadius: THEME.rounded.default,
     backgroundColor: THEME.colors.surfaceContainer,
   },
-  gradientBg: {
-    backgroundColor: THEME.colors.secondaryContainer,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   roundedImage: {
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: THEME.colors.surfaceContainer,
   },
   itemInfo: {
     flex: 1,
@@ -259,25 +296,7 @@ const styles = StyleSheet.create({
   itemSubtitle: {
     ...THEME.typography.labelSm,
     color: THEME.colors.onSurfaceVariant,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginTop: 4,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 110,
-    right: THEME.spacing.marginMobile,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: THEME.colors.tertiaryFixedDim,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    marginTop: 2,
   },
 });
 

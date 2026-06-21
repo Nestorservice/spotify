@@ -19,7 +19,19 @@ const { width } = Dimensions.get('window');
 
 const PlayerScreen = () => {
   const navigation = useNavigation();
-  const { currentTrack, isPlaying, setIsPlaying, currentTime, duration } = usePlayerStore();
+  const { 
+    currentTrack, 
+    isPlaying, 
+    setIsPlaying, 
+    currentTime, 
+    duration,
+    shuffle,
+    repeat,
+    toggleShuffle,
+    toggleRepeat,
+    playNext,
+    playPrevious
+  } = usePlayerStore();
   const [isFavorite, setIsFavorite] = useState(false);
 
   const handleFavoriteToggle = async () => {
@@ -94,10 +106,10 @@ const PlayerScreen = () => {
 
         {/* Controls */}
         <View style={styles.controlsRow}>
-          <TouchableOpacity>
-            <Icon name="shuffle" size={28} color={THEME.colors.onSurfaceVariant} />
+          <TouchableOpacity onPress={() => toggleShuffle()}>
+            <Icon name="shuffle" size={28} color={shuffle ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => playPrevious()}>
             <Icon name="skip-previous" size={48} color={THEME.colors.onSurface} />
           </TouchableOpacity>
           <TouchableOpacity 
@@ -110,11 +122,15 @@ const PlayerScreen = () => {
               color={THEME.colors.onTertiaryFixed} 
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => playNext()}>
             <Icon name="skip-next" size={48} color={THEME.colors.onSurface} />
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Icon name="repeat" size={28} color={THEME.colors.onSurfaceVariant} />
+          <TouchableOpacity onPress={() => toggleRepeat()}>
+            <Icon 
+              name={repeat === 'one' ? "repeat-one" : "repeat"} 
+              size={28} 
+              color={repeat !== 'off' ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant} 
+            />
           </TouchableOpacity>
         </View>
 

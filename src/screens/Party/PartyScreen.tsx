@@ -12,6 +12,8 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { THEME } from '../../theme';
 import { usePartyStore } from '../../store/usePartyStore';
+import { usePlayerStore } from '../../store/usePlayerStore';
+import { musicService } from '../../services/MusicService';
 import RadarAnimation from '../../components/party/RadarAnimation';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
@@ -24,8 +26,22 @@ const PartyScreen = () => {
     setIsSearching 
   } = usePartyStore();
 
+  const { 
+    currentTrack, 
+    queue, 
+    playTrackFromQueue, 
+    currentTime, 
+    duration, 
+    setQueue 
+  } = usePlayerStore();
+
   useEffect(() => {
     setIsSearching(true);
+    if (queue.length === 0) {
+      musicService.getTrendingTracks().then(tracks => {
+        setQueue(tracks as any);
+      });
+    }
   }, []);
 
   const renderParticipant = ({ item }: { item: any }) => (
@@ -38,24 +54,30 @@ const PartyScreen = () => {
     </View>
   );
 
-  const renderQueueItem = ({ item, index }: { item: any; index: number }) => (
-    <View style={[styles.queueItem, index === 0 && styles.nowPlayingItem]}>
-      <Image source={{ uri: item.track.artwork }} style={styles.queueArtwork} />
-      <View style={styles.queueInfo}>
-        <Text style={[styles.queueTitle, index === 0 && styles.primaryText]}>{item.track.title}</Text>
-        <Text style={styles.queueArtist}>{item.track.artist} • 03:42</Text>
-      </View>
-      <View style={styles.addedBy}>
-        <Image source={{ uri: item.addedBy.avatar }} style={styles.addedByAvatar} />
-        {index === 0 && <Text style={styles.hostLabel}>Host</Text>}
-      </View>
-      {index === 0 && (
-        <View style={styles.playbackProgress}>
-          <View style={[styles.progressFill, { width: '45%' }]} />
+  const renderQueueItem = ({ item, index }: { item: any; index: number }) => {
+    const isCurrent = item.id === currentTrack?.id;
+    return (
+      <TouchableOpacity 
+        style={[styles.queueItem, isCurrent && styles.nowPlayingItem]}
+        onPress={() => playTrackFromQueue(item, queue as any)}
+      >
+        <Image source={{ uri: item.artwork }} style={styles.queueArtwork} />
+        <View style={styles.queueInfo}>
+          <Text style={[styles.queueTitle, isCurrent && styles.primaryText]} numberOfLines={1}>{item.title}</Text>
+          <Text style={styles.queueArtist} numberOfLines={1}>{item.artist}</Text>
         </View>
-      )}
-    </View>
-  );
+        <View style={styles.addedBy}>
+          <Image source={{ uri: MOCK_PARTICIPANTS[index % MOCK_PARTICIPANTS.length].avatar }} style={styles.addedByAvatar} />
+          {isCurrent && <Text style={styles.hostLabel}>Active</Text>}
+        </View>
+        {isCurrent && (
+          <View style={styles.playbackProgress}>
+            <View style={[styles.progressFill, { width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }]} />
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -123,8 +145,8 @@ const PartyScreen = () => {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Shared Queue</Text>
             <View style={styles.queueContainer}>
-              {MOCK_QUEUE.map((item, index) => (
-                <React.Fragment key={index}>
+              {queue.map((item, index) => (
+                <React.Fragment key={item.id}>
                   {renderQueueItem({ item, index })}
                 </React.Fragment>
               ))}
