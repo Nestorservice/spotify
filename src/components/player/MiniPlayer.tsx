@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,54 +11,117 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { THEME } from '../../theme';
 import { usePlayerStore } from '../../store/usePlayerStore';
+import { userContentService } from '../../services/UserContentService';
 
 const { width } = Dimensions.get('window');
 
 const MiniPlayer = () => {
   const navigation = useNavigation<any>();
-  const { currentTrack, isPlaying, setIsPlaying, currentTime, duration } = usePlayerStore();
+  const {
+    currentTrack,
+    isPlaying,
+    setIsPlaying,
+    setCurrentTrack,
+    currentTime,
+    duration,
+  } = usePlayerStore();
+
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (currentTrack) {
+        try {
+          const favorites = await userContentService.getFavorites();
+          const isFav = favorites.some((fav: any) => fav.id === currentTrack.id);
+          setIsFavorite(isFav);
+        } catch (e) {
+          console.log('Error checking favorites:', e);
+        }
+      }
+    };
+    checkFavorite();
+  }, [currentTrack]);
 
   if (!currentTrack) return null;
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  const handleFavoriteToggle = async () => {
+    if (currentTrack) {
+      const liked = await userContentService.toggleFavorite(currentTrack as any);
+      setIsFavorite(liked);
+    }
+  };
+
+  const handleTouchStart = (e: any) => {
+    setTouchStart({
+      x: e.nativeEvent.pageX,
+      y: e.nativeEvent.pageY,
+    });
+  };
+
+  const handleTouchEnd = (e: any) => {
+    const endX = e.nativeEvent.pageX;
+    const endY = e.nativeEvent.pageY;
+    const diffX = endX - touchStart.x;
+    const diffY = endY - touchStart.y;
+
+    // Swipe down or swipe horizontally to dismiss/close the player
+    if (diffY > 50 || Math.abs(diffX) > 80) {
+      setIsPlaying(false);
+      setCurrentTrack(null);
+    }
+  };
+
   return (
-    <TouchableOpacity 
-      style={styles.container} 
-      activeOpacity={0.9}
-      onPress={() => navigation.navigate('Player')}
+    <View
+      style={styles.container}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      <View style={styles.content}>
-        <View style={styles.leftSection}>
-          <Image source={{ uri: currentTrack.artwork }} style={styles.artwork} />
-          <View style={styles.info}>
-            <Text style={styles.title} numberOfLines={1}>{currentTrack.title}</Text>
-            <Text style={styles.artist} numberOfLines={1}>{currentTrack.artist}</Text>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => navigation.navigate('Player')}
+      >
+        <View style={styles.content}>
+          <View style={styles.leftSection}>
+            <Image source={{ uri: currentTrack.artwork }} style={styles.artwork} />
+            <View style={styles.info}>
+              <Text style={styles.title} numberOfLines={1}>
+                {currentTrack.title}
+              </Text>
+              <Text style={styles.artist} numberOfLines={1}>
+                {currentTrack.artist}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.rightSection}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleFavoriteToggle}>
+              <Icon
+                name={isFavorite ? 'favorite' : 'favorite-border'}
+                size={24}
+                color={isFavorite ? THEME.colors.primaryFixedDim : THEME.colors.white}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.playButton} onPress={() => setIsPlaying(!isPlaying)}>
+              <Icon
+                name={isPlaying ? 'pause' : 'play-arrow'}
+                size={24}
+                color={THEME.colors.black}
+              />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.rightSection}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Icon name="favorite-border" size={24} color={THEME.colors.white} />
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.playButton}
-            onPress={() => setIsPlaying(!isPlaying)}
-          >
-            <Icon 
-              name={isPlaying ? "pause" : "play-arrow"} 
-              size={24} 
-              color={THEME.colors.black} 
-            />
-          </TouchableOpacity>
+        {/* Progress Bar */}
+        <View style={styles.progressContainer}>
+          <View style={[styles.progressBar, { width: `${progressPercent}%` }]} />
         </View>
-      </View>
-
-      {/* Progress Bar */}
-      <View style={styles.progressContainer}>
-        <View style={[styles.progressBar, { width: `${progressPercent}%` }]} />
-      </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -68,7 +131,7 @@ const styles = StyleSheet.create({
     bottom: 90, // Just above the bottom tab bar
     left: THEME.spacing.marginMobile,
     right: THEME.spacing.marginMobile,
-    backgroundColor: 'rgba(32, 31, 31, 0.9)',
+    backgroundColor: 'rgba(32, 31, 31, 0.95)',
     borderRadius: THEME.rounded.lg,
     overflow: 'hidden',
     borderWidth: 1,

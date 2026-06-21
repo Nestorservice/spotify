@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   Dimensions,
   SafeAreaView,
+  Share,
+  Modal,
+  FlatList,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
@@ -19,25 +22,57 @@ const { width } = Dimensions.get('window');
 
 const PlayerScreen = () => {
   const navigation = useNavigation();
-  const { 
-    currentTrack, 
-    isPlaying, 
-    setIsPlaying, 
-    currentTime, 
+  const {
+    currentTrack,
+    isPlaying,
+    setIsPlaying,
+    currentTime,
     duration,
     shuffle,
     repeat,
     toggleShuffle,
     toggleRepeat,
     playNext,
-    playPrevious
+    playPrevious,
+    queue,
+    playTrackFromQueue,
   } = usePlayerStore();
+
   const [isFavorite, setIsFavorite] = useState(false);
+  const [queueModalVisible, setQueueModalVisible] = useState(false);
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (currentTrack) {
+        try {
+          const favorites = await userContentService.getFavorites();
+          const isFav = favorites.some((fav: any) => fav.id === currentTrack.id);
+          setIsFavorite(isFav);
+        } catch (e) {
+          console.log('Error checking favorites:', e);
+        }
+      }
+    };
+    checkFavorite();
+  }, [currentTrack]);
 
   const handleFavoriteToggle = async () => {
     if (currentTrack) {
       const liked = await userContentService.toggleFavorite(currentTrack as any);
       setIsFavorite(liked);
+    }
+  };
+
+  const handleShareTrack = async () => {
+    if (currentTrack) {
+      try {
+        await Share.share({
+          message: `Écoute "${currentTrack.title}" de ${currentTrack.artist} sur Sauti !`,
+          title: currentTrack.title,
+        });
+      } catch (err) {
+        console.error('Error sharing track:', err);
+      }
     }
   };
 
@@ -55,7 +90,7 @@ const PlayerScreen = () => {
   return (
     <View style={styles.container}>
       <BackgroundMotif />
-      
+
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
@@ -70,7 +105,6 @@ const PlayerScreen = () => {
             <Icon name="more-vert" size={28} color={THEME.colors.onSurface} />
           </TouchableOpacity>
         </View>
-      
 
         {/* Album Art */}
         <View style={styles.artContainer}>
@@ -85,10 +119,10 @@ const PlayerScreen = () => {
             <Text style={styles.artistText}>{currentTrack.artist}</Text>
           </View>
           <TouchableOpacity onPress={handleFavoriteToggle}>
-            <Icon 
-              name={isFavorite ? "favorite" : "favorite-border"} 
-              size={32} 
-              color={isFavorite ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant} 
+            <Icon
+              name={isFavorite ? 'favorite' : 'favorite-border'}
+              size={32}
+              color={isFavorite ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
             />
           </TouchableOpacity>
         </View>
@@ -107,29 +141,30 @@ const PlayerScreen = () => {
         {/* Controls */}
         <View style={styles.controlsRow}>
           <TouchableOpacity onPress={() => toggleShuffle()}>
-            <Icon name="shuffle" size={28} color={shuffle ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant} />
+            <Icon
+              name="shuffle"
+              size={28}
+              color={shuffle ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => playPrevious()}>
             <Icon name="skip-previous" size={48} color={THEME.colors.onSurface} />
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.playButton}
-            onPress={() => setIsPlaying(!isPlaying)}
-          >
-            <Icon 
-              name={isPlaying ? "pause" : "play-arrow"} 
-              size={48} 
-              color={THEME.colors.onTertiaryFixed} 
+          <TouchableOpacity style={styles.playButton} onPress={() => setIsPlaying(!isPlaying)}>
+            <Icon
+              name={isPlaying ? 'pause' : 'play-arrow'}
+              size={48}
+              color={THEME.colors.onTertiaryFixed}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => playNext()}>
             <Icon name="skip-next" size={48} color={THEME.colors.onSurface} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => toggleRepeat()}>
-            <Icon 
-              name={repeat === 'one' ? "repeat-one" : "repeat"} 
-              size={28} 
-              color={repeat !== 'off' ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant} 
+            <Icon
+              name={repeat === 'one' ? 'repeat-one' : 'repeat'}
+              size={28}
+              color={repeat !== 'off' ? THEME.colors.primaryFixedDim : THEME.colors.onSurfaceVariant}
             />
           </TouchableOpacity>
         </View>
@@ -138,17 +173,69 @@ const PlayerScreen = () => {
         <View style={styles.footer}>
           <TouchableOpacity style={styles.deviceSelector}>
             <Icon name="devices" size={20} color={THEME.colors.onSurfaceVariant} />
-            <Text style={styles.deviceText}>AirPods Pro</Text>
+            <Text style={styles.deviceText}>Sauti Sync Player</Text>
           </TouchableOpacity>
           <View style={styles.footerActions}>
-            <TouchableOpacity style={styles.footerIcon}>
+            <TouchableOpacity style={styles.footerIcon} onPress={handleShareTrack}>
               <Icon name="share" size={24} color={THEME.colors.onSurfaceVariant} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.footerIcon}>
+            <TouchableOpacity style={styles.footerIcon} onPress={() => setQueueModalVisible(true)}>
               <Icon name="playlist-play" size={28} color={THEME.colors.onSurfaceVariant} />
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Queue Modal Sheet */}
+        <Modal
+          visible={queueModalVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setQueueModalVisible(false)}
+        >
+          <SafeAreaView style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>File d'attente</Text>
+                <TouchableOpacity onPress={() => setQueueModalVisible(false)}>
+                  <Icon name="close" size={28} color={THEME.colors.onSurface} />
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={queue}
+                keyExtractor={(item, index) => item.id || index.toString()}
+                renderItem={({ item }) => {
+                  const isCurrent = item.id === currentTrack.id;
+                  return (
+                    <TouchableOpacity
+                      style={[styles.modalItem, isCurrent && styles.modalItemActive]}
+                      onPress={() => {
+                        playTrackFromQueue(item, queue as any);
+                        setQueueModalVisible(false);
+                      }}
+                    >
+                      <Image source={{ uri: item.artwork }} style={styles.modalArtwork} />
+                      <View style={styles.modalItemInfo}>
+                        <Text
+                          style={[styles.modalItemTitle, isCurrent && styles.primaryText]}
+                          numberOfLines={1}
+                        >
+                          {item.title}
+                        </Text>
+                        <Text style={styles.modalItemArtist} numberOfLines={1}>
+                          {item.artist}
+                        </Text>
+                      </View>
+                      {isCurrent && (
+                        <Icon name="volume-up" size={24} color={THEME.colors.primaryFixedDim} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                }}
+                ListEmptyComponent={<Text style={styles.emptyText}>La file d'attente est vide.</Text>}
+              />
+            </View>
+          </SafeAreaView>
+        </Modal>
       </SafeAreaView>
     </View>
   );
@@ -179,29 +266,30 @@ const styles = StyleSheet.create({
   },
   brandLabel: {
     ...THEME.typography.labelLg,
-    color: THEME.colors.primaryFixedDim,
+    color: THEME.colors.primaryFixed,
+    fontWeight: 'bold',
   },
   artContainer: {
-    flex: 1,
+    width: width - THEME.spacing.marginMobile * 2,
+    height: width - THEME.spacing.marginMobile * 2,
+    marginVertical: THEME.spacing.lg,
+    borderRadius: THEME.rounded.lg,
+    overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: THEME.spacing.xl,
-  },
-  artwork: {
-    width: width - (THEME.spacing.marginMobile * 2),
-    aspectRatio: 1,
-    borderRadius: THEME.rounded.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    position: 'relative',
   },
   glowEffect: {
     position: 'absolute',
-    width: width * 0.7,
-    height: width * 0.7,
-    borderRadius: width * 0.35,
+    width: '100%',
+    height: '100%',
     backgroundColor: THEME.colors.primaryFixedDim,
     opacity: 0.15,
-    transform: [{ scale: 1.5 }],
+  },
+  artwork: {
+    width: '90%',
+    height: '90%',
+    borderRadius: THEME.rounded.lg,
   },
   infoContainer: {
     flexDirection: 'row',
@@ -211,33 +299,34 @@ const styles = StyleSheet.create({
   },
   titleArtist: {
     flex: 1,
-    gap: 4,
+    marginRight: 16,
   },
   titleText: {
-    ...THEME.typography.headlineLgMobile,
-    color: THEME.colors.white,
+    ...THEME.typography.headlineMd,
+    color: THEME.colors.onSurface,
   },
   artistText: {
     ...THEME.typography.bodyLg,
     color: THEME.colors.onSurfaceVariant,
+    marginTop: 4,
   },
   progressSection: {
     marginBottom: THEME.spacing.lg,
   },
   progressBackground: {
     height: 4,
-    backgroundColor: THEME.colors.surfaceContainerHighest,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 2,
-    marginBottom: 8,
+    overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
     backgroundColor: THEME.colors.primaryFixedDim,
-    borderRadius: 2,
   },
   timeLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 8,
   },
   timeText: {
     ...THEME.typography.labelSm,
@@ -253,20 +342,22 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: THEME.colors.tertiaryFixedDim,
+    backgroundColor: THEME.colors.primaryFixed,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 8,
-    shadowColor: THEME.colors.tertiaryFixedDim,
+    shadowColor: THEME.colors.primaryFixed,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: THEME.spacing.xl,
+    paddingVertical: THEME.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.05)',
   },
   deviceSelector: {
     flexDirection: 'row',
@@ -274,16 +365,76 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   deviceText: {
-    ...THEME.typography.labelLg,
+    ...THEME.typography.labelSm,
     color: THEME.colors.onSurfaceVariant,
   },
   footerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 24,
+    gap: 16,
   },
   footerIcon: {
     padding: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: THEME.colors.surfaceContainerLow,
+    borderTopLeftRadius: THEME.rounded.lg,
+    borderTopRightRadius: THEME.rounded.lg,
+    height: '60%',
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    ...THEME.typography.headlineMd,
+    color: THEME.colors.onSurface,
+  },
+  modalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    gap: 12,
+  },
+  modalItemActive: {
+    backgroundColor: 'rgba(0, 228, 118, 0.05)',
+    borderRadius: THEME.rounded.default,
+    paddingHorizontal: 8,
+  },
+  modalArtwork: {
+    width: 40,
+    height: 40,
+    borderRadius: THEME.rounded.default,
+  },
+  modalItemInfo: {
+    flex: 1,
+  },
+  modalItemTitle: {
+    ...THEME.typography.labelLg,
+    color: THEME.colors.onSurface,
+  },
+  primaryText: {
+    color: THEME.colors.primaryFixedDim,
+  },
+  modalItemArtist: {
+    ...THEME.typography.labelSm,
+    color: THEME.colors.onSurfaceVariant,
+  },
+  emptyText: {
+    ...THEME.typography.bodyLg,
+    color: THEME.colors.onSurfaceVariant,
+    textAlign: 'center',
+    marginTop: 40,
   },
 });
 

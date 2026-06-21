@@ -26,7 +26,7 @@ function App(): React.JSX.Element {
         title: 'Logdrum Ritual',
         artist: 'Musa Keys',
         artwork: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBZl6tR1L5AHtSqH3ReIfSikWmS1iIEwWH5IZUIZC8O76bqMctYRlctUPSrWG04PZLwz79NWvnCMAfHsrlZNRLZoEryytrs-ExN8uAmhENBCxD-g6duDS_sgFOGAjleTswTZQfxFs7CqVvR0ddN5g0QQ-kUMgqAXFlkcIKnHa84FscN6LZC0sQ6IekO8DMaGTkCNOVUgSdV_DZPstRdv2Z5gGFBmpFMMiFZuI_i5xha3qoQUnuS7O_idv8KPQ4TCU1ZYkp9rzP56wyi',
-        url: '', // To be filled from Firebase
+        url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', // Playable demo stream
       });
     };
 
@@ -50,8 +50,7 @@ function App(): React.JSX.Element {
             setProgress(data.currentTime, data.seekableDuration || data.playableDuration || usePlayerStore.getState().duration || 1);
           }}
           onEnd={() => {
-            setIsPlaying(false);
-            setProgress(0, usePlayerStore.getState().duration);
+            usePlayerStore.getState().onTrackEnd();
           }}
           onError={(err: any) => {
             console.log('Audio playback error:', err);

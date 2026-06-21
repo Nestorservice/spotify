@@ -31,7 +31,9 @@ interface PartyState {
   requestAddTrack: (track: TrackData, userName: string, userAvatar: string) => void;
 }
 
-// Generate unique ID for participants
+// Global flag to prevent update loops between devices
+let isSyncingFromRemote = false;
+
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 export const usePartyStore = create<PartyState>((set, get) => ({
@@ -51,7 +53,7 @@ export const usePartyStore = create<PartyState>((set, get) => ({
         if (!current) return;
 
         if (event === 'participant_join') {
-          // Add new participant
+          // Add participant to the list
           const newParticipant: Participant = {
             id: payload.participantId,
             name: payload.name,
@@ -60,7 +62,7 @@ export const usePartyStore = create<PartyState>((set, get) => ({
           };
           get().addParticipant(newParticipant);
 
-          // Host instantly sends initial state to sync new participant
+          // Host syncs state to new participant
           const playerState = usePlayerStore.getState();
           supabaseService.broadcastState({
             currentTrack: playerState.currentTrack,
@@ -70,9 +72,40 @@ export const usePartyStore = create<PartyState>((set, get) => ({
             queue: playerState.queue,
           });
         } else if (event === 'request_add_track') {
-          // Add track requested by guest to host queue
+          // Add track to queue
+          isSyncingFromRemote = true;
           const playerStore = usePlayerStore.getState();
           playerStore.addToQueue(payload.track);
+          isSyncingFromRemote = false;
+
+          // Broadcast updated state to all members
+          supabaseService.broadcastState({
+            currentTrack: playerStore.currentTrack,
+            isPlaying: playerStore.isPlaying,
+            currentTime: playerStore.currentTime,
+            duration: playerStore.duration,
+            queue: playerStore.queue,
+          });
+        } else if (event === 'sync_state') {
+          // Symmetric support: Sync guest playback updates on host side
+          isSyncingFromRemote = true;
+          const playerStore = usePlayerStore.getState();
+          try {
+            if (JSON.stringify(playerStore.currentTrack) !== JSON.stringify(payload.currentTrack)) {
+              playerStore.setCurrentTrack(payload.currentTrack);
+            }
+            if (playerStore.isPlaying !== payload.isPlaying) {
+              playerStore.setIsPlaying(payload.isPlaying);
+            }
+            if (JSON.stringify(playerStore.queue) !== JSON.stringify(payload.queue)) {
+              playerStore.setQueue(payload.queue);
+            }
+          } finally {
+            // Delay disabling to ensure Zustand batch updates finish
+            setTimeout(() => {
+              isSyncingFromRemote = false;
+            }, 100);
+          }
         }
       }
     );
@@ -97,19 +130,22 @@ export const usePartyStore = create<PartyState>((set, get) => ({
       guestUser,
       (event, payload) => {
         if (event === 'sync_state') {
+          isSyncingFromRemote = true;
           const playerStore = usePlayerStore.getState();
-
-          // Sync active track
-          if (JSON.stringify(playerStore.currentTrack) !== JSON.stringify(payload.currentTrack)) {
-            playerStore.setCurrentTrack(payload.currentTrack);
-          }
-          // Sync play state
-          if (playerStore.isPlaying !== payload.isPlaying) {
-            playerStore.setIsPlaying(payload.isPlaying);
-          }
-          // Sync queue
-          if (JSON.stringify(playerStore.queue) !== JSON.stringify(payload.queue)) {
-            playerStore.setQueue(payload.queue);
+          try {
+            if (JSON.stringify(playerStore.currentTrack) !== JSON.stringify(payload.currentTrack)) {
+              playerStore.setCurrentTrack(payload.currentTrack);
+            }
+            if (playerStore.isPlaying !== payload.isPlaying) {
+              playerStore.setIsPlaying(payload.isPlaying);
+            }
+            if (JSON.stringify(playerStore.queue) !== JSON.stringify(payload.queue)) {
+              playerStore.setQueue(payload.queue);
+            }
+          } finally {
+            setTimeout(() => {
+              isSyncingFromRemote = false;
+            }, 100);
           }
         }
       }
@@ -121,8 +157,14 @@ export const usePartyStore = create<PartyState>((set, get) => ({
         name: `Salon ${roomCode}`,
         role: 'guest',
         participants: [
-          { id: 'host-placeholder', name: 'Hôte', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb', isHost: true, isActive: true },
-          { ...guestUser, isActive: true }
+          {
+            id: 'host-placeholder',
+            name: 'Hôte',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
+            isHost: true,
+            isActive: true,
+          },
+          { ...guestUser, isActive: true },
         ],
       };
       set({ currentSession: session, isSearching: false });
@@ -141,7 +183,6 @@ export const usePartyStore = create<PartyState>((set, get) => ({
   addParticipant: (participant) => {
     set((state) => {
       if (!state.currentSession) return {};
-      // Avoid duplicate adds
       if (state.currentSession.participants.some((p) => p.id === participant.id)) {
         return {};
       }
@@ -163,16 +204,20 @@ export const usePartyStore = create<PartyState>((set, get) => ({
 
   requestAddTrack: (track, userName, userAvatar) => {
     const session = get().currentSession;
-    if (session && session.role === 'guest') {
-      supabaseService.requestAddTrack(track, userName, userAvatar);
+    if (session) {
+      if (session.role === 'guest') {
+        supabaseService.requestAddTrack(track, userName, userAvatar);
+      } else {
+        usePlayerStore.getState().addToQueue(track);
+      }
     }
   },
 }));
 
-// Subscribe to player state changes to broadcast when acting as host
+// Subscribe to player state changes to broadcast to everyone in the party room
 usePlayerStore.subscribe((state) => {
   const partyState = usePartyStore.getState();
-  if (partyState.currentSession?.role === 'host') {
+  if (partyState.currentSession && !isSyncingFromRemote) {
     supabaseService.broadcastState({
       currentTrack: state.currentTrack,
       isPlaying: state.isPlaying,

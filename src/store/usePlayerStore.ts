@@ -28,6 +28,7 @@ interface PlayerState {
   toggleShuffle: () => void;
   toggleRepeat: () => void;
   setProgress: (currentTime: number, duration: number) => void;
+  onTrackEnd: () => void;
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -130,4 +131,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }),
 
   setProgress: (currentTime, duration) => set({currentTime, duration}),
+
+  onTrackEnd: () => {
+    const { repeat, playNext } = get();
+    if (repeat === 'one') {
+      set({ currentTime: 0, isPlaying: false });
+      setTimeout(() => {
+        set({ isPlaying: true });
+      }, 100);
+    } else {
+      playNext();
+    }
+  },
 }));

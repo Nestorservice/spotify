@@ -13,20 +13,22 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {THEME} from '../../theme';
 import {musicService, TrackData, ArtistData, PlaylistData} from '../../services/MusicService';
+import {localFileService} from '../../services/LocalFileService';
 import {usePlayerStore} from '../../store/usePlayerStore';
 import BackgroundMotif from '../../components/common/BackgroundMotif';
 
-type FilterType = 'Tracks' | 'Artists' | 'Playlists';
+type FilterType = 'Tracks' | 'Artists' | 'Playlists' | 'Local';
 
 const LibraryScreen = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('Tracks');
   const [tracks, setTracks] = useState<TrackData[]>([]);
   const [artists, setArtists] = useState<ArtistData[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistData[]>([]);
+  const [localTracks, setLocalTracks] = useState<TrackData[]>([]);
   const [loading, setLoading] = useState(true);
   const {setCurrentTrack, setIsPlaying, playTrackFromQueue} = usePlayerStore();
 
-  const filters: FilterType[] = ['Tracks', 'Artists', 'Playlists'];
+  const filters: FilterType[] = ['Tracks', 'Artists', 'Playlists', 'Local'];
 
   useEffect(() => {
     loadData();
@@ -35,14 +37,16 @@ const LibraryScreen = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [t, a, p] = await Promise.all([
+      const [t, a, p, l] = await Promise.all([
         musicService.getTrendingTracks(),
         musicService.getTopArtists(),
         musicService.getTopPlaylists(),
+        localFileService.scanLocalMusic(),
       ]);
       setTracks(t);
       setArtists(a);
       setPlaylists(p);
+      setLocalTracks(l as any);
     } catch (error) {
       console.error('Error loading library data:', error);
     }
@@ -90,7 +94,7 @@ const LibraryScreen = () => {
   const renderTrackItem = ({item}: {item: TrackData}) => (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={() => handlePlayTrack(item, tracks)}>
+      onPress={() => handlePlayTrack(item, activeFilter === 'Local' ? localTracks : tracks)}>
       <Image source={{uri: item.artwork}} style={styles.itemImage} />
       <View style={styles.itemInfo}>
         <Text style={styles.itemTitle} numberOfLines={1}>
@@ -100,7 +104,7 @@ const LibraryScreen = () => {
           {item.artist}
         </Text>
       </View>
-      <TouchableOpacity onPress={() => handlePlayTrack(item, tracks)}>
+      <TouchableOpacity onPress={() => handlePlayTrack(item, activeFilter === 'Local' ? localTracks : tracks)}>
         <Icon
           name="play-circle-outline"
           size={28}
@@ -181,6 +185,15 @@ const LibraryScreen = () => {
           <FlatList
             data={playlists}
             renderItem={renderPlaylistItem}
+            keyExtractor={item => item.id}
+            scrollEnabled={false}
+          />
+        );
+      case 'Local':
+        return (
+          <FlatList
+            data={localTracks}
+            renderItem={renderTrackItem}
             keyExtractor={item => item.id}
             scrollEnabled={false}
           />
