@@ -172,17 +172,23 @@ class MusicService {
     }
   }
 
-  // Récupérer les paroles d'une chanson via lyrics.ovh (API gratuite)
+  // Récupérer les paroles d'une chanson via lyrics.ovh (API gratuite) avec timeout de 5s
   async getLyrics(artist: string, title: string): Promise<string | null> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     try {
       const response = await fetch(
-        `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`
+        `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`,
+        { signal: controller.signal }
       );
+      clearTimeout(timeoutId);
       if (!response.ok) return null;
       const data = await response.json();
       return data.lyrics || null;
     } catch (error) {
-      console.log('Paroles non trouvées :', error);
+      clearTimeout(timeoutId);
+      console.log('Paroles non trouvées ou timeout :', error);
       return null;
     }
   }

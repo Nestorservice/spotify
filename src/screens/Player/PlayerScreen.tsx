@@ -92,9 +92,15 @@ const PlayerScreen = () => {
     setLyricsVisible(true);
     if (currentTrack && !lyrics) {
       setLyricsLoading(true);
-      const result = await musicService.getLyrics(currentTrack.artist, currentTrack.title);
-      setLyrics(result);
-      setLyricsLoading(false);
+      try {
+        const result = await musicService.getLyrics(currentTrack.artist, currentTrack.title);
+        setLyrics(result);
+      } catch (error) {
+        console.log('Erreur de chargement des paroles :', error);
+        setLyrics(null);
+      } finally {
+        setLyricsLoading(false);
+      }
     }
   };
 
